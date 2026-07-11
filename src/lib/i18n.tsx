@@ -74,19 +74,6 @@ const en = {
     ],
   },
   location: { eyebrow: "Find Us", title: "The Venue", directions: "Get Directions" },
-  rsvp: {
-    eyebrow: "Kindly Reply",
-    title: "RSVP",
-    name: "Full Name",
-    guests: "Number of Guests",
-    phone: "Phone Number",
-    attendQ: "Will you attend?",
-    yes: "Joyfully Accepts",
-    no: "Regretfully Declines",
-    message: "Special Message",
-    send: "Send via WhatsApp",
-    sent: "JazakAllah khair — your reply is on its way. 🌿",
-  },
   blessings: {
     translit: "“Barakallahu laka wa baraka 'alayka wa jama'a baynakuma fi khayr.”",
     meaning:
@@ -208,19 +195,6 @@ const ml: Translation = {
     ],
   },
   location: { eyebrow: "സ്ഥലം", title: "വേദി", directions: "വഴി കാണുക" },
-  rsvp: {
-    eyebrow: "മറുപടി അറിയിക്കുക",
-    title: "RSVP",
-    name: "പേര്",
-    guests: "അതിഥികളുടെ എണ്ണം",
-    phone: "ഫോൺ നമ്പർ",
-    attendQ: "നിങ്ങൾ പങ്കെടുക്കുമോ?",
-    yes: "സന്തോഷത്തോടെ പങ്കെടുക്കുന്നു",
-    no: "പങ്കെടുക്കാനാവില്ല",
-    message: "പ്രത്യേക സന്ദേശം",
-    send: "വാട്സ്ആപ്പ് വഴി അയയ്ക്കുക",
-    sent: "ജസാകല്ലാഹു ഖൈർ — നിങ്ങളുടെ മറുപടി അയച്ചു. 🌿",
-  },
   blessings: {
     translit: "“ബാറകല്ലാഹു ലക വ ബാറക അലൈക വ ജമഅ ബൈനകുമാ ഫീ ഖൈർ.”",
     meaning:

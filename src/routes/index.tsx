@@ -10,7 +10,6 @@ import {
   ImagePlus,
   MoonStar,
   Phone,
-  Send,
   Share2,
   Download,
   Volume2,
@@ -769,121 +768,6 @@ function Blessings() {
   );
 }
 
-// ─── RSVP ─────────────────────────────────────────────────────────────────────
-function RSVP() {
-  const { t } = useLang();
-  const [sent, setSent] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    guests: "1",
-    phone: "",
-    attending: "yes",
-    message: "",
-  });
-
-  function submit(e: FormEvent) {
-    e.preventDefault();
-    const text =
-      `*Wedding RSVP*%0A` +
-      `Name: ${form.name}%0A` +
-      `Guests: ${form.guests}%0A` +
-      `Phone: ${form.phone}%0A` +
-      `Attending: ${form.attending}%0A` +
-      `Message: ${form.message}`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, "_blank");
-    setSent(true);
-  }
-
-  const fields = [
-    { key: "name", label: t.rsvp.name, type: "text", required: true },
-    { key: "guests", label: t.rsvp.guests, type: "number", required: true },
-    { key: "phone", label: t.rsvp.phone, type: "tel", required: true },
-  ];
-
-  return (
-    <section className="relative py-24 sm:py-32">
-      <div className="mx-auto max-w-2xl px-6">
-        <SectionHeading eyebrow={t.rsvp.eyebrow} title={t.rsvp.title} />
-        <motion.form
-          {...fadeUp}
-          onSubmit={submit}
-          className="glass-card space-y-5 rounded-3xl p-8 sm:p-10"
-        >
-          {fields.map((f) => (
-            <div key={f.key}>
-              <label className="mb-2 block text-[0.65rem] uppercase tracking-[0.2em] text-gold-deep">
-                {f.label}
-              </label>
-              <input
-                required={f.required}
-                type={f.type}
-                min={f.type === "number" ? 1 : undefined}
-                value={form[f.key as keyof typeof form]}
-                onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-                className="w-full rounded-xl border border-gold/25 bg-ivory/60 px-4 py-3 text-sm outline-none transition-all focus:border-gold focus:bg-ivory focus:shadow-[0_0_0_4px_oklch(0.82_0.1_82/0.15)]"
-              />
-            </div>
-          ))}
-          <div>
-            <label className="mb-2 block text-[0.65rem] uppercase tracking-[0.2em] text-gold-deep">
-              {t.rsvp.attendQ}
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              {(["yes", "no"] as const).map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => setForm({ ...form, attending: v })}
-                  className={`rounded-xl border py-3 text-sm transition-all ${
-                    form.attending === v
-                      ? "border-gold bg-luxe text-gold-deep shadow-gold"
-                      : "border-gold/25 bg-ivory/40 text-muted-foreground hover:border-gold/50"
-                  }`}
-                >
-                  {v === "yes" ? t.rsvp.yes : t.rsvp.no}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="mb-2 block text-[0.65rem] uppercase tracking-[0.2em] text-gold-deep">
-              {t.rsvp.message}
-            </label>
-            <textarea
-              rows={3}
-              value={form.message}
-              onChange={(e) => setForm({ ...form, message: e.target.value })}
-              className="w-full rounded-xl border border-gold/25 bg-ivory/60 px-4 py-3 text-sm outline-none transition-all focus:border-gold focus:bg-ivory focus:shadow-[0_0_0_4px_oklch(0.82_0.1_82/0.15)]"
-            />
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            type="submit"
-            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-luxe px-8 py-4 text-xs uppercase tracking-[0.2em] text-gold-deep shadow-gold transition-all"
-            style={{ background: "var(--gradient-gold)", color: "oklch(0.985 0.008 90)" }}
-          >
-            <Send className="h-4 w-4" />
-            {t.rsvp.send}
-          </motion.button>
-          <AnimatePresence>
-            {sent && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="rounded-xl border border-sage/40 bg-sage/10 p-4 text-center text-sm text-emerald-deep"
-              >
-                {t.rsvp.sent}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.form>
-      </div>
-    </section>
-  );
-}
-
 // ─── Dress code + Contact ─────────────────────────────────────────────────────
 function DressAndContact() {
   const { t } = useLang();
@@ -1573,11 +1457,10 @@ function InvitationPage() {
               <Gallery />
               <Schedule />
               <Location />
-              <RSVP />
+              <GuestBook />
               <BadgeMaker />
               <Blessings />
               <DressAndContact />
-              <GuestBook />
               <Footer />
             </motion.div>
           )}
