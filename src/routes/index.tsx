@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   Clock,
   MapPin,
-  Heart,
   Home,
   ImagePlus,
   MoonStar,
@@ -14,21 +13,13 @@ import {
   Download,
   Volume2,
   VolumeX,
-  X,
   MessageCircleHeart,
   ChevronDown,
 } from "lucide-react";
 
 import { LanguageProvider, useLang, type Lang } from "@/lib/i18n";
 import weddingSong from "@/assets/febi.mp3";
-import heroBg from "@/assets/hero-bg.jpg";
 import calligraphy from "@/assets/calligraphy.png";
-import g1 from "@/assets/gallery-1.jpg";
-import g2 from "@/assets/gallery-2.jpg";
-import g3 from "@/assets/gallery-3.jpg";
-import g4 from "@/assets/gallery-4.jpg";
-import g5 from "@/assets/gallery-5.jpg";
-import g6 from "@/assets/gallery-6.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -267,36 +258,18 @@ function Petals() {
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero({ onOpen }: { onOpen: () => void }) {
   const { t, lang } = useLang();
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
-    <section
-      ref={ref}
-      className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden"
-    >
-      <motion.img
-        src={heroBg}
-        alt=""
-        width={1600}
-        height={1800}
-        style={{ y }}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-ivory/70 via-cream/50 to-ivory" />
+    <section className="scene-dark relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden">
       <div className="arabesque-pattern absolute inset-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,oklch(0.45_0.12_25_/_0.35)_0%,transparent_60%)]" />
 
-      <motion.div
-        style={{ opacity }}
-        className="relative z-10 mx-auto max-w-3xl px-8 py-24 text-center sm:px-14"
-      >
+      <div className="relative z-10 mx-auto max-w-3xl px-8 py-24 text-center sm:px-14">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.6, delay: 0.4 }}
-          className="pointer-events-none absolute inset-4 text-gold/70 sm:inset-2"
+          className="pointer-events-none absolute inset-4 text-gold/60 sm:inset-2"
         >
           <OrnateCorner className="absolute left-0 top-0 h-14 w-14 sm:h-20 sm:w-20" />
           <OrnateCorner className="absolute right-0 top-0 h-14 w-14 -scale-x-100 sm:h-20 sm:w-20" />
@@ -307,16 +280,16 @@ function Hero({ onOpen }: { onOpen: () => void }) {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.2 }}
-          className="font-arabic text-2xl text-gold-deep sm:text-3xl"
+          transition={{ duration: 1.4, delay: 0.2 }}
+          className="font-arabic text-2xl leading-relaxed text-gold sm:text-3xl"
         >
           بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
         </motion.p>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1.2, delay: 0.6 }}
-          className={`mt-3 text-xs uppercase text-muted-foreground ${
+          transition={{ duration: 1.2, delay: 0.7 }}
+          className={`mt-4 text-xs uppercase text-ivory/60 ${
             lang === "ml" ? "tracking-[0.15em]" : "tracking-[0.4em]"
           }`}
         >
@@ -327,11 +300,11 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 1 }}
-          className="mx-auto mt-10 max-w-xl text-sm italic leading-relaxed text-foreground/70 sm:text-base"
+          className="mx-auto mt-10 max-w-xl font-serif text-sm italic leading-relaxed text-ivory/75 sm:text-base"
         >
           {t.hero.quote}
           <br />
-          <span className="mt-2 inline-block text-xs not-italic tracking-widest text-gold-deep">
+          <span className="mt-2 inline-block text-xs not-italic tracking-widest text-gold">
             {t.hero.quoteRef}
           </span>
         </motion.p>
@@ -340,7 +313,7 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.4 }}
-          className={`mt-16 text-xs uppercase text-gold-deep ${
+          className={`mt-14 text-xs uppercase text-gold ${
             lang === "ml" ? "tracking-[0.18em]" : "tracking-[0.5em]"
           }`}
         >
@@ -351,24 +324,25 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.4, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-6 flex flex-wrap items-center justify-center gap-3 text-5xl italic sm:gap-6 sm:text-7xl md:text-8xl"
+          className="text-foil font-script mt-4 px-2 pb-4 text-6xl leading-tight sm:text-8xl md:text-9xl"
         >
-          <span className="text-gold-gradient animate-gradient-drift">{t.names.bride}</span>
-          <motion.span
-            animate={{ scale: [1, 1.15, 1] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            className="inline-block text-gold"
-          >
-            <Heart className="h-8 w-8 fill-current sm:h-12 sm:w-12" />
-          </motion.span>
-          <span className="text-gold-gradient animate-gradient-drift">{t.names.groom}</span>
+          {t.names.bride} & {t.names.groom}
         </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2, delay: 2 }}
+          className="mt-2 font-serif text-lg italic text-gold sm:text-xl"
+        >
+          {t.events.dateDisplay}
+        </motion.p>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 2 }}
-          className="mx-auto mt-10 max-w-lg text-sm leading-relaxed text-foreground/70 sm:text-base"
+          transition={{ duration: 1, delay: 2.2 }}
+          className="mx-auto mt-8 max-w-lg text-sm leading-relaxed text-ivory/70 sm:text-base"
         >
           {t.hero.invite}
         </motion.p>
@@ -376,30 +350,128 @@ function Hero({ onOpen }: { onOpen: () => void }) {
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 2.4 }}
+          transition={{ duration: 1, delay: 2.5 }}
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
           onClick={onOpen}
-          className={`animate-glow-pulse group relative mt-12 overflow-hidden rounded-full border border-gold/50 bg-luxe px-10 py-4 text-xs uppercase text-gold-deep transition-all hover:border-gold ${
+          className={`animate-glow-pulse group relative mt-10 overflow-hidden rounded-full border border-gold/60 px-10 py-4 text-xs uppercase text-gold transition-all hover:border-gold hover:text-burgundy-deep ${
             lang === "ml" ? "tracking-[0.15em]" : "tracking-[0.35em]"
           }`}
         >
-          <span className="relative z-10">{t.hero.open}</span>
+          <span className="relative z-10 transition-colors duration-500 group-hover:text-[oklch(0.2_0.08_14)]">
+            {t.hero.open}
+          </span>
           <span
-            className="absolute inset-0 -z-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+            className="absolute inset-0 -z-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
             style={{ background: "var(--gradient-gold)" }}
           />
         </motion.button>
-      </motion.div>
+      </div>
 
       <motion.div
-        style={{ opacity }}
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2.5, repeat: Infinity }}
-        className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-gold-deep"
+        className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-gold"
       >
         <ChevronDown className="h-6 w-6" />
       </motion.div>
+    </section>
+  );
+}
+
+// ─── Couple portraits ─────────────────────────────────────────────────────────
+// Drop the real photos into src/assets and import them here when ready.
+const BRIDE_PHOTO: string | null = null;
+const GROOM_PHOTO: string | null = null;
+
+function PortraitCard({
+  photo,
+  name,
+  role,
+  delay,
+}: {
+  photo: string | null;
+  name: string;
+  role: string;
+  delay: number;
+}) {
+  return (
+    <motion.figure
+      {...fadeUp}
+      transition={{ ...fadeUp.transition, delay }}
+      className="flex flex-col items-center"
+    >
+      {/* Mihrab-arch frame */}
+      <div className="relative w-64 overflow-hidden rounded-b-3xl rounded-t-[10rem] border-2 border-gold/50 p-2 shadow-gold sm:w-72">
+        <div className="scene-dark relative aspect-[3/4] w-full overflow-hidden rounded-b-2xl rounded-t-[9rem]">
+          {photo ? (
+            <img src={photo} alt={name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-4">
+              <span className="font-script text-foil text-8xl">{name[0]}</span>
+              <RubElHizb className="h-8 w-8 text-gold/70" />
+            </div>
+          )}
+        </div>
+      </div>
+      <figcaption className="mt-6 text-center">
+        <div className="font-script text-foil-deep text-5xl leading-snug">{name}</div>
+        <div className="mt-2 text-xs uppercase tracking-[0.3em] text-gold-deep">{role}</div>
+      </figcaption>
+    </motion.figure>
+  );
+}
+
+function Portraits() {
+  const { t } = useLang();
+  return (
+    <section className="relative py-24 sm:py-32">
+      <div className="bg-arabesque absolute inset-0" />
+      <div className="relative mx-auto max-w-4xl px-6">
+        <SectionHeading eyebrow={t.couple.eyebrow} title={t.couple.title} />
+        <div className="flex flex-wrap items-start justify-center gap-12 sm:gap-16">
+          <PortraitCard photo={BRIDE_PHOTO} name={t.names.bride} role={t.couple.bride} delay={0} />
+          <PortraitCard
+            photo={GROOM_PHOTO}
+            name={t.names.groom}
+            role={t.couple.groom}
+            delay={0.15}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Family lineage ───────────────────────────────────────────────────────────
+function Families() {
+  const { t } = useLang();
+  const people = [
+    { name: t.names.groom, relation: t.family.sonOf, parents: t.family.groomParents },
+    { name: t.names.bride, relation: t.family.daughterOf, parents: t.family.brideParents },
+  ];
+  return (
+    <section className="relative py-24 sm:py-32">
+      <div className="mx-auto max-w-4xl px-6">
+        <SectionHeading eyebrow={t.family.eyebrow} title={t.family.title} />
+        <div className="grid gap-6 sm:grid-cols-2">
+          {people.map((p, i) => (
+            <motion.div
+              key={p.name}
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: i * 0.15 }}
+              className="glass-card relative overflow-hidden rounded-3xl p-10 text-center"
+            >
+              <RubElHizb className="mx-auto h-6 w-6 text-gold" />
+              <div className="font-script text-foil-deep mt-4 text-5xl leading-snug">{p.name}</div>
+              <div className="mt-4 text-xs uppercase tracking-[0.3em] text-gold-deep">
+                {p.relation}
+              </div>
+              <div className="mt-2 font-serif text-lg italic text-foreground/85">{p.parents}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
@@ -446,7 +518,7 @@ function Countdown() {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: 20, opacity: 0 }}
                   transition={{ duration: 0.4 }}
-                  className="text-gold-gradient text-5xl font-light tabular-nums sm:text-6xl"
+                  className="text-foil-deep font-serif text-5xl font-light tabular-nums sm:text-6xl"
                 >
                   {String(it.value).padStart(2, "0")}
                 </motion.div>
@@ -471,6 +543,7 @@ function EventCards() {
       time: t.events.nikahTime,
       venue: t.events.nikahVenue,
       address: t.events.nikahAddress,
+      mapsQuery: MAPS_QUERY,
       icon: MoonStar,
     },
     {
@@ -478,6 +551,7 @@ function EventCards() {
       time: t.events.receptionTime,
       venue: t.events.receptionVenue,
       address: t.events.receptionAddress,
+      mapsQuery: RECEPTION_MAPS_QUERY,
       icon: Home,
     },
   ];
@@ -494,18 +568,22 @@ function EventCards() {
                 {...fadeUp}
                 transition={{ ...fadeUp.transition, delay: i * 0.15 }}
                 whileHover={{ y: -6 }}
-                className="glass-card group relative overflow-hidden rounded-3xl p-10"
+                className="glass-card group relative overflow-hidden rounded-3xl border-t-4 border-t-gold/60 p-10"
               >
                 <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-gradient-to-br from-champagne to-transparent opacity-40 blur-2xl transition-opacity group-hover:opacity-70" />
                 <div className="relative">
                   <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full border border-gold/40 bg-ivory/70 text-gold-deep">
                     <Icon className="h-6 w-6" />
                   </div>
-                  <h3 className="text-3xl italic sm:text-4xl">{e.label}</h3>
+                  <h3 className="font-serif text-3xl italic sm:text-4xl">{e.label}</h3>
                   <div className="mt-6 space-y-3 text-sm text-foreground/80">
                     <div className="flex items-center gap-3">
-                      <Clock className="h-4 w-4 text-gold-deep" />
-                      <span>{e.time}</span>
+                      <Calendar className="h-4 w-4 shrink-0 text-gold-deep" />
+                      <span>{t.events.dateDisplay}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Clock className="h-4 w-4 shrink-0 text-gold-deep" />
+                      <span className="font-medium">{e.time}</span>
                     </div>
                     <div className="flex items-start gap-3">
                       <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold-deep" />
@@ -515,127 +593,20 @@ function EventCards() {
                       </div>
                     </div>
                   </div>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${e.mapsQuery}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-8 inline-flex items-center gap-2 rounded-full border border-gold/50 px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-gold-deep transition-all hover:border-gold hover:shadow-gold"
+                  >
+                    <MapPin className="h-3.5 w-3.5" /> {t.location.directions}
+                  </a>
                 </div>
               </motion.article>
             );
           })}
         </div>
       </div>
-    </section>
-  );
-}
-
-// ─── Our Story timeline ───────────────────────────────────────────────────────
-function Story() {
-  const { t } = useLang();
-  return (
-    <section className="relative py-24 sm:py-32">
-      <div className="bg-arabesque absolute inset-0" />
-      <div className="relative mx-auto max-w-3xl px-6">
-        <SectionHeading eyebrow={t.story.eyebrow} title={t.story.title} />
-        <div className="relative">
-          <div className="absolute bottom-0 left-4 top-0 w-px bg-gradient-to-b from-transparent via-gold/50 to-transparent sm:left-1/2" />
-          {t.story.items.map((e, i) => (
-            <motion.div
-              key={e.year}
-              {...fadeUp}
-              transition={{ ...fadeUp.transition, delay: i * 0.1 }}
-              className={`relative mb-12 flex items-start gap-6 sm:mb-16 sm:justify-between ${
-                i % 2 === 0 ? "sm:flex-row" : "sm:flex-row-reverse"
-              }`}
-            >
-              <div className="hidden flex-1 sm:block" />
-              <div className="absolute left-4 top-3 z-10 h-3 w-3 -translate-x-1/2 rounded-full bg-gold shadow-[0_0_16px_var(--gold)] sm:left-1/2" />
-              <div className="flex-1 pl-12 sm:pl-0 sm:px-8">
-                <div className="glass-card rounded-2xl p-6">
-                  <div className="text-xs uppercase tracking-[0.35em] text-gold-deep">{e.year}</div>
-                  <h4 className="mt-2 text-2xl italic">{e.title}</h4>
-                  <p className="mt-2 text-sm text-foreground/70">{e.body}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── Gallery ──────────────────────────────────────────────────────────────────
-const galleryImages = [g1, g2, g3, g4, g5, g6];
-function Gallery() {
-  const { t } = useLang();
-  const [active, setActive] = useState<number | null>(null);
-  const [auto, setAuto] = useState(0);
-  useEffect(() => {
-    if (active === null) return;
-    const t = setInterval(() => setAuto((a) => a + 1), 3500);
-    return () => clearInterval(t);
-  }, [active]);
-  useEffect(() => {
-    if (active !== null) setActive((active + 1) % galleryImages.length);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auto]);
-
-  return (
-    <section className="relative py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl px-6">
-        <SectionHeading eyebrow={t.gallery.eyebrow} title={t.gallery.title} />
-        <motion.div
-          {...fadeUp}
-          className="columns-2 gap-4 sm:columns-3 sm:gap-6 [&>*]:mb-4 sm:[&>*]:mb-6"
-        >
-          {galleryImages.map((src, i) => (
-            <motion.button
-              key={src}
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.4 }}
-              onClick={() => setActive(i)}
-              className="block w-full overflow-hidden rounded-2xl border border-gold/20 shadow-glass"
-            >
-              <motion.img
-                src={src}
-                alt={`Gallery ${i + 1}`}
-                loading="lazy"
-                whileHover={{ scale: 1.08 }}
-                transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full"
-              />
-            </motion.button>
-          ))}
-        </motion.div>
-      </div>
-
-      <AnimatePresence>
-        {active !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setActive(null)}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/80 p-6 backdrop-blur-xl"
-          >
-            <button
-              onClick={() => setActive(null)}
-              className="absolute right-6 top-6 rounded-full border border-ivory/30 p-2 text-ivory hover:bg-ivory/10"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <motion.img
-              key={active}
-              src={galleryImages[active]}
-              alt=""
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="max-h-[85vh] max-w-full rounded-2xl object-contain shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
@@ -720,7 +691,7 @@ function Schedule() {
                 i !== t.schedule.items.length - 1 ? "border-b border-gold/15" : ""
               }`}
             >
-              <div className="text-gold-gradient w-24 shrink-0 text-lg italic sm:w-32 sm:text-xl">
+              <div className="text-foil-deep w-24 shrink-0 font-serif text-lg italic sm:w-32 sm:text-xl">
                 {it.time}
               </div>
               <div className="min-w-0 text-base sm:text-lg">{it.title}</div>
@@ -781,8 +752,8 @@ function DressAndContact() {
             {[
               "oklch(0.965 0.018 85)",
               "oklch(0.82 0.1 82)",
-              "oklch(0.55 0.06 145)",
-              "oklch(0.38 0.07 155)",
+              "oklch(0.62 0.12 72)",
+              "oklch(0.34 0.1 18)",
             ].map((c) => (
               <div
                 key={c}
@@ -963,7 +934,7 @@ function GuestBook() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="mb-10 rounded-xl border border-sage/40 bg-sage/10 p-4 text-center text-sm text-emerald-deep"
+              className="mb-10 rounded-xl border border-gold/40 bg-gold/10 p-4 text-center text-sm text-gold-deep"
             >
               {t.guestbook.sent}
             </motion.div>
@@ -1078,8 +1049,9 @@ function BadgeMaker() {
       if (!ctx) return;
       try {
         await Promise.all([
-          document.fonts.load('italic 600 96px "Cormorant Garamond"'),
-          document.fonts.load('500 40px "Inter"'),
+          document.fonts.load('110px "Great Vibes"'),
+          document.fonts.load('italic 500 52px "Fraunces"'),
+          document.fonts.load('500 40px "Hanken Grotesk"'),
           document.fonts.load('500 46px "Noto Sans Malayalam"'),
         ]);
       } catch {
@@ -1128,11 +1100,11 @@ function BadgeMaker() {
         const h = img.height * cover;
         ctx.drawImage(img, cx - w / 2 + offset.x, cy - h / 2 + offset.y, w, h);
       } else {
-        ctx.fillStyle = "#efe6d0";
+        ctx.fillStyle = "#f0e4d4";
         ctx.fillRect(cx - r, cy - r, 2 * r, 2 * r);
         ctx.fillStyle = "#a37a2c";
         ctx.textAlign = "center";
-        ctx.font = '500 40px "Inter", "Noto Sans Malayalam", sans-serif';
+        ctx.font = '500 40px "Hanken Grotesk", "Noto Sans Malayalam", sans-serif';
         ctx.fillText(t.badge.pick, cx, cy + 12);
       }
       ctx.restore();
@@ -1155,20 +1127,20 @@ function BadgeMaker() {
       drawBadgeCorner(ctx, 46, S - 46, 1, -1);
       drawBadgeCorner(ctx, S - 46, S - 46, -1, -1);
 
-      // Names, date, attendance line
+      // Names, date, attendance line — burgundy ink with gold date
       ctx.textAlign = "center";
-      ctx.fillStyle = "#3d3527";
-      ctx.font = 'italic 600 100px "Cormorant Garamond", "Noto Serif Malayalam", serif';
-      ctx.fillText(`${t.names.bride}  ♥  ${t.names.groom}`, cx, S * 0.775);
+      ctx.fillStyle = "#5a1e29";
+      ctx.font = '110px "Great Vibes", "Noto Serif Malayalam", cursive';
+      ctx.fillText(`${t.names.bride} & ${t.names.groom}`, cx, S * 0.78);
       ctx.fillStyle = "#a37a2c";
-      ctx.font = '500 40px "Inter", sans-serif';
-      ctx.fillText("15 · 02 · 2027", cx, S * 0.835);
-      ctx.fillStyle = "#5c4d33";
+      ctx.font = '500 40px "Hanken Grotesk", sans-serif';
+      ctx.fillText("15 · 02 · 2027", cx, S * 0.845);
+      ctx.fillStyle = "#5a1e29";
       ctx.font =
         lang === "ml"
           ? '500 46px "Noto Sans Malayalam", sans-serif'
-          : 'italic 500 52px "Cormorant Garamond", serif';
-      ctx.fillText(t.badge.attending, cx, S * 0.915);
+          : 'italic 500 52px "Fraunces", serif';
+      ctx.fillText(t.badge.attending, cx, S * 0.92);
     }
     draw();
     return () => {
@@ -1298,28 +1270,26 @@ function BadgeMaker() {
 function Footer() {
   const { t } = useLang();
   return (
-    <footer className="relative overflow-hidden bg-luxe py-20 text-center">
-      <div className="bg-arabesque absolute inset-0" />
+    <footer className="scene-dark relative overflow-hidden py-24 text-center">
+      <div className="arabesque-pattern absolute inset-0" />
       <div className="relative mx-auto max-w-2xl px-6">
-        <div className="text-xs uppercase tracking-[0.25em] text-gold-deep">{t.footer.tag}</div>
-        <h3 className="mt-4 text-4xl italic sm:text-5xl">
-          <span className="text-gold-gradient">{t.names.bride}</span>
-          <span className="mx-3 text-gold">&</span>
-          <span className="text-gold-gradient">{t.names.groom}</span>
+        <div className="text-xs uppercase tracking-[0.25em] text-gold">{t.footer.tag}</div>
+        <h3 className="font-script text-foil mt-6 pb-3 text-6xl leading-snug sm:text-7xl">
+          {t.names.bride} & {t.names.groom}
         </h3>
-        <p className="mt-6 text-sm leading-relaxed text-foreground/70">
+        <p className="mt-4 text-sm leading-relaxed text-ivory/70">
           {t.footer.thanks1}
           <br />
           {t.footer.thanks2}
         </p>
-        <div className="mt-6 text-sm text-foreground/70">
-          <span className="text-gold-deep">{t.contact.role}: </span>
+        <div className="mt-6 text-sm text-ivory/70">
+          <span className="text-gold">{t.contact.role}: </span>
           {t.contact.name} ·{" "}
-          <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:text-gold-deep">
+          <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:text-gold">
             {CONTACT_PHONE_DISPLAY}
           </a>
         </div>
-        <div className="mt-8 text-xs tracking-widest text-muted-foreground">
+        <div className="mt-8 text-xs tracking-widest text-ivory/45">
           © {new Date().getFullYear()} — {t.footer.made}
         </div>
       </div>
@@ -1451,10 +1421,10 @@ function InvitationPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
             >
+              <Portraits />
+              <Families />
               <EventCards />
               <Countdown />
-              <Story />
-              <Gallery />
               <Schedule />
               <Location />
               <GuestBook />

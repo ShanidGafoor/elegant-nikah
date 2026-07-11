@@ -35,36 +35,23 @@ const en = {
     receptionVenue: "“Zainab” — Bride's Home",
     receptionAddress: "Puthiyatheru",
   },
-  story: {
-    eyebrow: "Our Journey",
-    title: "Written by Allah",
-    items: [
-      {
-        year: "2024",
-        title: "First Meeting",
-        body: "A chance introduction through family — a quiet salaam that changed everything.",
-      },
-      {
-        year: "2025",
-        title: "The Proposal",
-        body: "Under the guidance of both families, hearts were spoken for with grace and prayer.",
-      },
-      {
-        year: "2026",
-        title: "Engagement",
-        body: "A small, sacred ceremony celebrated with those closest to us.",
-      },
-      {
-        year: "2027",
-        title: "The Nikah",
-        body: "InshaAllah, we begin our forever — bound by faith, love, and duas.",
-      },
-    ],
+  couple: {
+    eyebrow: "The Couple",
+    title: "Two Hearts, One Dua",
+    bride: "The Bride",
+    groom: "The Groom",
   },
-  gallery: { eyebrow: "Moments", title: "Our Gallery" },
+  family: {
+    eyebrow: "With the Blessings of Their Families",
+    title: "Together in Celebration",
+    sonOf: "Son of",
+    daughterOf: "Daughter of",
+    groomParents: "— & —",
+    brideParents: "Haneef & —",
+  },
   schedule: {
     eyebrow: "Programme",
-    title: "Wedding Schedule",
+    title: "How the Day Unfolds",
     items: [
       { time: "9:30 AM", title: "Guest Arrival" },
       { time: "10:00 AM", title: "Nikah Ceremony" },
@@ -82,7 +69,7 @@ const en = {
   dress: {
     eyebrow: "Dress Code",
     title: "Traditional / Formal Attire",
-    colors: "Cream · Champagne · Sage · Emerald",
+    colors: "Cream · Champagne · Gold · Burgundy",
   },
   contact: {
     eyebrow: "Contact & Support",
@@ -156,36 +143,23 @@ const ml: Translation = {
     receptionVenue: "“സൈനബ്” — വധുവിന്റെ വീട്",
     receptionAddress: "പുതിയതെരു",
   },
-  story: {
-    eyebrow: "ഞങ്ങളുടെ യാത്ര",
-    title: "അല്ലാഹു എഴുതിയ കഥ",
-    items: [
-      {
-        year: "2024",
-        title: "ആദ്യ കാഴ്ച",
-        body: "കുടുംബങ്ങളിലൂടെയുള്ള ഒരു പരിചയപ്പെടൽ — എല്ലാം മാറ്റിമറിച്ച ഒരു സലാം.",
-      },
-      {
-        year: "2025",
-        title: "വിവാഹാലോചന",
-        body: "ഇരു കുടുംബങ്ങളുടെയും ആശീർവാദത്തോടെ, പ്രാർത്ഥനയോടെ ഹൃദയങ്ങൾ ഒന്നായി.",
-      },
-      {
-        year: "2026",
-        title: "നിശ്ചയം",
-        body: "ഏറ്റവും പ്രിയപ്പെട്ടവരോടൊപ്പം നടന്ന ലളിതവും പവിത്രവുമായ ചടങ്ങ്.",
-      },
-      {
-        year: "2027",
-        title: "നിക്കാഹ്",
-        body: "ഇൻശാ അല്ലാഹ്, വിശ്വാസത്തിലും സ്നേഹത്തിലും ദുആകളിലും ചേർന്ന് ഞങ്ങളുടെ എന്നേക്കുമുള്ള യാത്ര ആരംഭിക്കുന്നു.",
-      },
-    ],
+  couple: {
+    eyebrow: "ദമ്പതികൾ",
+    title: "രണ്ട് ഹൃദയങ്ങൾ, ഒരു ദുആ",
+    bride: "വധു",
+    groom: "വരൻ",
   },
-  gallery: { eyebrow: "നിമിഷങ്ങൾ", title: "ഞങ്ങളുടെ ഗാലറി" },
+  family: {
+    eyebrow: "കുടുംബങ്ങളുടെ ആശീർവാദത്തോടെ",
+    title: "ആഘോഷത്തിൽ ഒന്നിച്ച്",
+    sonOf: "മകൻ",
+    daughterOf: "മകൾ",
+    groomParents: "— & —",
+    brideParents: "ഹനീഫ് & —",
+  },
   schedule: {
     eyebrow: "പരിപാടികൾ",
-    title: "വിവാഹ ക്രമം",
+    title: "ആ ദിനം ഇങ്ങനെ",
     items: [
       { time: "രാവിലെ 9:30", title: "അതിഥികളുടെ വരവ്" },
       { time: "രാവിലെ 10:00", title: "നിക്കാഹ്" },
@@ -203,7 +177,7 @@ const ml: Translation = {
   dress: {
     eyebrow: "വസ്ത്രധാരണം",
     title: "പരമ്പരാഗത / ഔപചാരിക വേഷം",
-    colors: "ക്രീം · ഷാംപെയ്ൻ · സേജ് · എമറാൾഡ്",
+    colors: "ക്രീം · ഷാംപെയ്ൻ · ഗോൾഡ് · ബർഗണ്ടി",
   },
   contact: {
     eyebrow: "ബന്ധപ്പെടുക",
