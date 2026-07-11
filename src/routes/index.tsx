@@ -7,6 +7,7 @@ import {
   MapPin,
   Heart,
   Home,
+  ImagePlus,
   MoonStar,
   Phone,
   Send,
@@ -50,6 +51,18 @@ const RECEPTION_MAPS_QUERY = encodeURIComponent(`${RECEPTION_ADDRESS}, Kannur, K
 const CONTACT_PHONE = "9400674324";
 const CONTACT_PHONE_DISPLAY = "+91 94006 74324";
 const WHATSAPP_NUMBER = `91${CONTACT_PHONE}`;
+
+// ─── Guest book backend (Google Form + published Sheet) ──────────────────────
+// Wishes submit invisibly to a Google Form and display from a published,
+// family-approved Google Sheet tab. Until these four values are filled in,
+// the guest book runs in local-preview mode (wishes are not saved).
+const GUESTBOOK_FORM_ID: string = "1FAIpQLScCRVELDmWXJ57Bq425CWSCwjR0hzbvA7MCOemn5LEO79Txkg";
+const GUESTBOOK_NAME_ENTRY: string = "entry.1860960418";
+const GUESTBOOK_WISH_ENTRY: string = "entry.1734280208";
+const GUESTBOOK_APPROVED_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSOZQ1M2341ahGG8x7Q-ln-F0jpUJp-JkPh7-id0NM5S6vtbRdltdOnfJ_F8VXTIWflKYBiW19LJuZS/pub?gid=1598118424&single=true&output=csv";
+const GUESTBOOK_CONFIGURED =
+  GUESTBOOK_FORM_ID !== "" && GUESTBOOK_NAME_ENTRY !== "" && GUESTBOOK_WISH_ENTRY !== "";
 
 // ─── Reusable animation helpers ───────────────────────────────────────────────
 const fadeUp = {
@@ -939,20 +952,95 @@ function DressAndContact() {
 }
 
 // ─── Guest book ───────────────────────────────────────────────────────────────
+// Minimal CSV parser that handles quoted fields (commas/newlines inside wishes).
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += c;
+      }
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ",") {
+      row.push(field);
+      field = "";
+    } else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field);
+      field = "";
+      rows.push(row);
+      row = [];
+    } else {
+      field += c;
+    }
+  }
+  if (field !== "" || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows;
+}
+
+const SAMPLE_WISHES = [
+  { name: "Zainab", text: "Barakallahu lakuma! May your home be filled with sakinah." },
+  { name: "Yusuf", text: "So happy for you both. Duas always. ✨" },
+  { name: "Fatima", text: "MashaAllah, a beautiful union written in the heavens." },
+];
+
 function GuestBook() {
   const { t } = useLang();
-  const [wishes, setWishes] = useState<{ name: string; text: string }[]>([
-    { name: "Zainab", text: "Barakallahu lakuma! May your home be filled with sakinah." },
-    { name: "Yusuf", text: "So happy for you both. Duas always. ✨" },
-    { name: "Fatima", text: "MashaAllah, a beautiful union written in the heavens." },
-  ]);
+  const [wishes, setWishes] = useState<{ name: string; text: string }[]>(
+    GUESTBOOK_CONFIGURED ? [] : SAMPLE_WISHES,
+  );
   const [name, setName] = useState("");
   const [text, setText] = useState("");
+  const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    if (!GUESTBOOK_APPROVED_CSV_URL) return;
+    fetch(GUESTBOOK_APPROVED_CSV_URL, { cache: "no-store" })
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))))
+      .then((csv) => {
+        const approved = parseCsv(csv)
+          .slice(1) // header row: Name, Wish
+          .map((r) => ({ name: (r[0] ?? "").trim(), text: (r[1] ?? "").trim() }))
+          .filter((w) => w.name && w.text)
+          .reverse(); // newest first
+        setWishes(approved);
+      })
+      .catch(() => {});
+  }, []);
 
   function add(e: FormEvent) {
     e.preventDefault();
     if (!name || !text) return;
-    setWishes([{ name, text }, ...wishes]);
+    if (GUESTBOOK_CONFIGURED) {
+      // Submit invisibly to the Google Form; opaque no-cors response is expected.
+      fetch(`https://docs.google.com/forms/d/e/${GUESTBOOK_FORM_ID}/formResponse`, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          [GUESTBOOK_NAME_ENTRY]: name,
+          [GUESTBOOK_WISH_ENTRY]: text,
+        }).toString(),
+      }).catch(() => {});
+      setSent(true);
+    } else {
+      setWishes([{ name, text }, ...wishes]);
+    }
     setName("");
     setText("");
   }
@@ -985,29 +1073,338 @@ function GuestBook() {
             <MessageCircleHeart className="inline h-4 w-4" />
           </button>
         </motion.form>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence>
-            {wishes.map((w, i) => (
-              <motion.div
-                key={`${w.name}-${i}`}
-                layout
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.5 }}
-                className="glass-card rounded-2xl p-6"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-luxe text-sm font-medium text-gold-deep">
-                    {w.name[0]}
+        <AnimatePresence>
+          {sent && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mb-10 rounded-xl border border-sage/40 bg-sage/10 p-4 text-center text-sm text-emerald-deep"
+            >
+              {t.guestbook.sent}
+            </motion.div>
+          )}
+        </AnimatePresence>
+        {wishes.length === 0 ? (
+          <motion.p {...fadeUp} className="text-center text-sm italic text-muted-foreground">
+            {t.guestbook.empty}
+          </motion.p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <AnimatePresence>
+              {wishes.map((w, i) => (
+                <motion.div
+                  key={`${w.name}-${i}`}
+                  layout
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.5 }}
+                  className="glass-card rounded-2xl p-6"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-luxe text-sm font-medium text-gold-deep">
+                      {w.name[0]}
+                    </div>
+                    <div className="min-w-0 truncate italic text-foreground">{w.name}</div>
                   </div>
-                  <div className="min-w-0 truncate italic text-foreground">{w.name}</div>
+                  <p className="mt-4 text-sm leading-relaxed text-foreground/75">"{w.text}"</p>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─── Photo badge maker ────────────────────────────────────────────────────────
+// Everything happens in-browser on a canvas; the guest's photo is never uploaded.
+const BADGE_SIZE = 1080;
+
+function drawBadgeStar(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = "#a37a2c";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(-size / 2, -size / 2, size, size);
+  ctx.rotate(Math.PI / 4);
+  ctx.strokeRect(-size / 2, -size / 2, size, size);
+  ctx.restore();
+}
+
+function drawBadgeCorner(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  sx: number,
+  sy: number,
+) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(sx, sy);
+  ctx.strokeStyle = "#c9a24b";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(0, 120);
+  ctx.lineTo(0, 36);
+  ctx.quadraticCurveTo(0, 0, 36, 0);
+  ctx.lineTo(120, 0);
+  ctx.stroke();
+  ctx.lineWidth = 2;
+  ctx.globalAlpha = 0.55;
+  ctx.beginPath();
+  ctx.moveTo(16, 120);
+  ctx.lineTo(16, 48);
+  ctx.quadraticCurveTo(16, 16, 48, 16);
+  ctx.lineTo(120, 16);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function BadgeMaker() {
+  const { t, lang } = useLang();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [img, setImg] = useState<HTMLImageElement | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null);
+
+  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    const im = new Image();
+    im.onload = () => {
+      setImg(im);
+      setZoom(1);
+      setOffset({ x: 0, y: 0 });
+    };
+    im.src = url;
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    async function draw() {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      try {
+        await Promise.all([
+          document.fonts.load('italic 600 96px "Cormorant Garamond"'),
+          document.fonts.load('500 40px "Inter"'),
+          document.fonts.load('500 46px "Noto Sans Malayalam"'),
+        ]);
+      } catch {
+        // draw with fallback fonts
+      }
+      if (cancelled) return;
+      const S = BADGE_SIZE;
+
+      // Warm luxe background
+      const bg = ctx.createLinearGradient(0, 0, S, S);
+      bg.addColorStop(0, "#fbf8f0");
+      bg.addColorStop(0.5, "#f4ebd7");
+      bg.addColorStop(1, "#ecdfc2");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, S, S);
+
+      // Faint arabesque diamond lattice
+      ctx.save();
+      ctx.strokeStyle = "rgba(163, 122, 44, 0.08)";
+      ctx.lineWidth = 1.5;
+      const cell = 120;
+      for (let x = 0; x < S; x += cell) {
+        for (let y = 0; y < S; y += cell) {
+          ctx.beginPath();
+          ctx.moveTo(x + cell / 2, y);
+          ctx.lineTo(x + cell, y + cell / 2);
+          ctx.lineTo(x + cell / 2, y + cell);
+          ctx.lineTo(x, y + cell / 2);
+          ctx.closePath();
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+
+      // Photo inside a golden circular frame
+      const cx = S / 2;
+      const cy = S * 0.4;
+      const r = S * 0.26;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.clip();
+      if (img) {
+        const cover = Math.max((2 * r) / img.width, (2 * r) / img.height) * zoom;
+        const w = img.width * cover;
+        const h = img.height * cover;
+        ctx.drawImage(img, cx - w / 2 + offset.x, cy - h / 2 + offset.y, w, h);
+      } else {
+        ctx.fillStyle = "#efe6d0";
+        ctx.fillRect(cx - r, cy - r, 2 * r, 2 * r);
+        ctx.fillStyle = "#a37a2c";
+        ctx.textAlign = "center";
+        ctx.font = '500 40px "Inter", "Noto Sans Malayalam", sans-serif';
+        ctx.fillText(t.badge.pick, cx, cy + 12);
+      }
+      ctx.restore();
+
+      // Double gold ring
+      ctx.strokeStyle = "#c9a24b";
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r + 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(163, 122, 44, 0.55)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r + 30, 0, Math.PI * 2);
+      ctx.stroke();
+
+      drawBadgeStar(ctx, cx, cy - r - 30, 30);
+      drawBadgeCorner(ctx, 46, 46, 1, 1);
+      drawBadgeCorner(ctx, S - 46, 46, -1, 1);
+      drawBadgeCorner(ctx, 46, S - 46, 1, -1);
+      drawBadgeCorner(ctx, S - 46, S - 46, -1, -1);
+
+      // Names, date, attendance line
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#3d3527";
+      ctx.font = 'italic 600 100px "Cormorant Garamond", "Noto Serif Malayalam", serif';
+      ctx.fillText(`${t.names.bride}  ♥  ${t.names.groom}`, cx, S * 0.775);
+      ctx.fillStyle = "#a37a2c";
+      ctx.font = '500 40px "Inter", sans-serif';
+      ctx.fillText("15 · 02 · 2027", cx, S * 0.835);
+      ctx.fillStyle = "#5c4d33";
+      ctx.font =
+        lang === "ml"
+          ? '500 46px "Noto Sans Malayalam", sans-serif'
+          : 'italic 500 52px "Cormorant Garamond", serif';
+      ctx.fillText(t.badge.attending, cx, S * 0.915);
+    }
+    draw();
+    return () => {
+      cancelled = true;
+    };
+  }, [img, zoom, offset, t, lang]);
+
+  function pointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
+    if (!img) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { px: e.clientX, py: e.clientY, ox: offset.x, oy: offset.y };
+  }
+
+  function pointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
+    const d = dragRef.current;
+    if (!d) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const scale = BADGE_SIZE / rect.width;
+    setOffset({
+      x: d.ox + (e.clientX - d.px) * scale,
+      y: d.oy + (e.clientY - d.py) * scale,
+    });
+  }
+
+  function pointerUp() {
+    dragRef.current = null;
+  }
+
+  function download() {
+    canvasRef.current?.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "febi-shahbaz-wedding-badge.png";
+      a.click();
+      URL.revokeObjectURL(url);
+    }, "image/png");
+  }
+
+  function shareBadge() {
+    canvasRef.current?.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], "febi-shahbaz-wedding-badge.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator
+          .share({ files: [file], title: `${BRIDE} & ${GROOM} — Wedding` })
+          .catch(() => {});
+      } else {
+        download();
+      }
+    }, "image/png");
+  }
+
+  const actionBtn =
+    "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-xs uppercase tracking-[0.2em] transition-all";
+
+  return (
+    <section className="relative py-24 sm:py-32">
+      <div className="bg-arabesque absolute inset-0" />
+      <div className="relative mx-auto max-w-2xl px-6">
+        <SectionHeading eyebrow={t.badge.eyebrow} title={t.badge.title} />
+        <motion.div {...fadeUp} className="glass-card rounded-3xl p-6 text-center sm:p-10">
+          <p className="mb-6 text-sm text-foreground/70">{t.badge.intro}</p>
+          <canvas
+            ref={canvasRef}
+            width={BADGE_SIZE}
+            height={BADGE_SIZE}
+            onPointerDown={pointerDown}
+            onPointerMove={pointerMove}
+            onPointerUp={pointerUp}
+            onPointerCancel={pointerUp}
+            className={`mx-auto w-full max-w-sm rounded-2xl border border-gold/30 shadow-glass ${
+              img ? "cursor-move touch-none" : ""
+            }`}
+          />
+          <input ref={fileRef} type="file" accept="image/*" onChange={onFile} className="hidden" />
+          <div className="mt-6 flex flex-col items-center gap-4">
+            <button
+              onClick={() => fileRef.current?.click()}
+              className={`${actionBtn} border border-gold/50 bg-luxe text-gold-deep hover:border-gold hover:shadow-gold`}
+            >
+              <ImagePlus className="h-4 w-4" />
+              {img ? t.badge.change : t.badge.pick}
+            </button>
+            {img && (
+              <>
+                <label className="flex w-full max-w-xs items-center gap-3 text-xs uppercase tracking-[0.2em] text-gold-deep">
+                  {t.badge.zoom}
+                  <input
+                    type="range"
+                    min={1}
+                    max={3}
+                    step={0.01}
+                    value={zoom}
+                    onChange={(e) => setZoom(Number(e.target.value))}
+                    className="w-full"
+                    style={{ accentColor: "var(--gold-deep)" }}
+                  />
+                </label>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <button
+                    onClick={download}
+                    className={`${actionBtn} text-ivory shadow-gold hover:opacity-90`}
+                    style={{ background: "var(--gradient-gold)", color: "oklch(0.985 0.008 90)" }}
+                  >
+                    <Download className="h-4 w-4" /> {t.badge.download}
+                  </button>
+                  <button
+                    onClick={shareBadge}
+                    className={`${actionBtn} border border-gold/50 bg-luxe text-gold-deep hover:border-gold hover:shadow-gold`}
+                  >
+                    <Share2 className="h-4 w-4" /> {t.badge.share}
+                  </button>
                 </div>
-                <p className="mt-4 text-sm leading-relaxed text-foreground/75">"{w.text}"</p>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+              </>
+            )}
+            <p className="text-xs text-muted-foreground">{t.badge.privacy}</p>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -1177,6 +1574,7 @@ function InvitationPage() {
               <Schedule />
               <Location />
               <RSVP />
+              <BadgeMaker />
               <Blessings />
               <DressAndContact />
               <GuestBook />
