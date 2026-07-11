@@ -5,8 +5,10 @@ export default defineConfig({
     base: "/elegant-nikah/",
   },
 
+  nitro: false,
+
   tanstackStart: {
     server: { entry: "server" },
-    prerender: { enabled: false },
+    prerender: { enabled: true },
   },
 });
