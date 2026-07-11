@@ -3,17 +3,14 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
-  Car,
   Clock,
   MapPin,
   Home,
   ImagePlus,
   MoonStar,
   Phone,
-  Plane,
   Share2,
   Download,
-  TrainFront,
   Volume2,
   VolumeX,
   MessageCircleHeart,
@@ -22,7 +19,6 @@ import {
 
 import { LanguageProvider, useLang, type Lang } from "@/lib/i18n";
 import weddingSong from "@/assets/febi.mp3";
-import calligraphy from "@/assets/calligraphy.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -284,7 +280,9 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.4, delay: 0.2 }}
-          className="font-arabic text-2xl leading-relaxed text-gold sm:text-3xl"
+          dir="rtl"
+          className="font-arabic whitespace-nowrap py-1 leading-[1.5] text-gold"
+          style={{ fontSize: "min(calc((100vw - 54px) / 11.9), 3.4rem)" }}
         >
           بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
         </motion.p>
@@ -552,38 +550,6 @@ function GrandScene() {
   );
 }
 
-// ─── Travel & arrival ─────────────────────────────────────────────────────────
-function Travel() {
-  const { t } = useLang();
-  const icons = [Car, TrainFront, Plane];
-  return (
-    <section className="relative py-24 sm:py-32">
-      <div className="mx-auto max-w-5xl px-6">
-        <SectionHeading eyebrow={t.travel.eyebrow} title={t.travel.title} />
-        <div className="grid gap-6 sm:grid-cols-3">
-          {t.travel.items.map((it, i) => {
-            const Icon = icons[i] ?? MapPin;
-            return (
-              <motion.div
-                key={it.title}
-                {...fadeUp}
-                transition={{ ...fadeUp.transition, delay: i * 0.12 }}
-                className="glass-card rounded-3xl p-8 text-center"
-              >
-                <div className="mx-auto mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 bg-ivory/70 text-gold-deep">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h3 className="font-serif text-xl italic">{it.title}</h3>
-                <p className="mt-3 text-sm text-muted-foreground">{it.body}</p>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ─── Family lineage ───────────────────────────────────────────────────────────
 function Families() {
   const { t } = useLang();
@@ -642,30 +608,33 @@ function Countdown() {
     { label: t.countdown.seconds, value: seconds },
   ];
   return (
-    <section className="relative overflow-hidden py-24 sm:py-32">
+    <section className="relative overflow-hidden py-16 sm:py-20">
       <div className="bg-arabesque absolute inset-0" />
-      <div className="relative mx-auto max-w-5xl px-6">
-        <SectionHeading eyebrow={t.countdown.eyebrow} title={t.countdown.title} />
-        <motion.div {...fadeUp} className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
-          {items.map((it) => (
-            <div
-              key={it.label}
-              className="glass-card group relative rounded-3xl p-6 text-center sm:p-8"
-            >
-              <AnimatePresence mode="popLayout">
-                <motion.div
-                  key={it.value}
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: 20, opacity: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className="text-foil-deep font-serif text-5xl font-light tabular-nums sm:text-6xl"
-                >
+      <div className="relative mx-auto max-w-3xl px-6">
+        <motion.div {...fadeUp} className="mb-8 text-center">
+          <span className="text-[0.7rem] uppercase tracking-[0.3em] text-gold-deep">
+            {t.countdown.eyebrow}
+          </span>
+          <h2 className="mt-3 font-serif text-3xl font-light italic sm:text-4xl">
+            {t.countdown.title}
+          </h2>
+        </motion.div>
+        <motion.div
+          {...fadeUp}
+          className="glass-card flex items-stretch justify-center gap-1 rounded-full px-4 py-6 sm:gap-2 sm:px-10"
+        >
+          {items.map((it, i) => (
+            <div key={it.label} className="flex items-center">
+              {i > 0 && (
+                <span className="mx-2 block h-1.5 w-1.5 rotate-45 border border-gold/60 sm:mx-5" />
+              )}
+              <div className="w-14 text-center sm:w-20">
+                <div className="text-foil-deep font-serif text-3xl font-light tabular-nums sm:text-5xl">
                   {String(it.value).padStart(2, "0")}
-                </motion.div>
-              </AnimatePresence>
-              <div className="mt-3 text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">
-                {it.label}
+                </div>
+                <div className="mt-1 text-[0.55rem] uppercase tracking-[0.15em] text-muted-foreground sm:text-[0.65rem]">
+                  {it.label}
+                </div>
               </div>
             </div>
           ))}
@@ -675,31 +644,68 @@ function Countdown() {
   );
 }
 
-// ─── Event details ────────────────────────────────────────────────────────────
+// ─── Where & When — glance cards on a dark scene ──────────────────────────────
+// Google Calendar template times are UTC (IST − 5:30).
+const NIKAH_GCAL =
+  "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+  "&text=" +
+  encodeURIComponent("Nikah — Febi & Shahbaz") +
+  "&dates=20270215T043000Z/20270215T063000Z" +
+  "&details=" +
+  encodeURIComponent("The Nikah of Febi & Shahbaz.") +
+  "&location=" +
+  encodeURIComponent("Manna Juma Masjid, Kannur, Kerala");
+const RECEPTION_GCAL =
+  "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+  "&text=" +
+  encodeURIComponent("Reception — Febi & Shahbaz") +
+  "&dates=20270215T073000Z/20270215T103000Z" +
+  "&details=" +
+  encodeURIComponent("The Wedding Reception of Febi & Shahbaz.") +
+  "&location=" +
+  encodeURIComponent("Zainab, Puthiyatheru, Kannur, Kerala");
+
 function EventCards() {
   const { t } = useLang();
   const events = [
     {
+      tag: t.events.nikahTag,
       label: t.events.nikah,
       time: t.events.nikahTime,
       venue: t.events.nikahVenue,
       address: t.events.nikahAddress,
       mapsQuery: MAPS_QUERY,
+      gcal: NIKAH_GCAL,
       icon: MoonStar,
     },
     {
+      tag: t.events.receptionTag,
       label: t.events.reception,
       time: t.events.receptionTime,
       venue: t.events.receptionVenue,
       address: t.events.receptionAddress,
       mapsQuery: RECEPTION_MAPS_QUERY,
+      gcal: RECEPTION_GCAL,
       icon: Home,
     },
   ];
   return (
-    <section className="relative py-24 sm:py-32">
-      <div className="mx-auto max-w-5xl px-6">
-        <SectionHeading eyebrow={t.events.dateDisplay} title={t.events.title} />
+    <section className="scene-dark relative overflow-hidden py-24 sm:py-32">
+      <div className="arabesque-pattern absolute inset-0" />
+      <div className="relative mx-auto max-w-5xl px-6">
+        <motion.div {...fadeUp} className="mb-14 flex flex-col items-center text-center">
+          <span className="mb-4 text-[0.7rem] uppercase tracking-[0.3em] text-gold">
+            {t.events.dateDisplay}
+          </span>
+          <div className="mb-4 flex items-center gap-4 text-gold">
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
+            <RubElHizb className="h-5 w-5" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+          </div>
+          <h2 className="font-serif text-4xl font-light italic text-ivory sm:text-5xl md:text-6xl">
+            {t.events.title}
+          </h2>
+        </motion.div>
         <div className="grid gap-6 md:grid-cols-2">
           {events.map((e, i) => {
             const Icon = e.icon;
@@ -708,39 +714,41 @@ function EventCards() {
                 key={e.label}
                 {...fadeUp}
                 transition={{ ...fadeUp.transition, delay: i * 0.15 }}
-                whileHover={{ y: -6 }}
-                className="glass-card group relative overflow-hidden rounded-3xl border-t-4 border-t-gold/60 p-10"
+                className="relative rounded-2xl border border-gold/40 bg-gradient-to-b from-ivory/10 to-ivory/[0.03] p-8 text-center shadow-[0_24px_50px_-34px_rgba(0,0,0,0.7)] sm:p-10"
               >
-                <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-gradient-to-br from-champagne to-transparent opacity-40 blur-2xl transition-opacity group-hover:opacity-70" />
-                <div className="relative">
-                  <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full border border-gold/40 bg-ivory/70 text-gold-deep">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-serif text-3xl italic sm:text-4xl">{e.label}</h3>
-                  <div className="mt-6 space-y-3 text-sm text-foreground/80">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-4 w-4 shrink-0 text-gold-deep" />
-                      <span>{t.events.dateDisplay}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="h-4 w-4 shrink-0 text-gold-deep" />
-                      <span className="font-medium">{e.time}</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold-deep" />
-                      <div>
-                        <div className="font-medium">{e.venue}</div>
-                        <div className="text-muted-foreground">{e.address}</div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="mx-auto mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 text-gold">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-gold">
+                  {e.tag}
+                </p>
+                <h3 className="mt-2 font-serif text-3xl text-ivory sm:text-4xl">{e.label}</h3>
+                <p className="mt-4 text-sm text-ivory/85">{t.events.dateDisplay}</p>
+                <p className="mt-1 font-serif text-xl italic text-gold">{e.time}</p>
+                <div className="mx-auto my-6 flex items-center justify-center gap-3 text-gold/60">
+                  <span className="h-px w-10 bg-gradient-to-r from-transparent to-gold/60" />
+                  <span className="block h-1.5 w-1.5 rotate-45 border border-gold/70" />
+                  <span className="h-px w-10 bg-gradient-to-l from-transparent to-gold/60" />
+                </div>
+                <p className="font-serif text-lg text-ivory">{e.venue}</p>
+                <p className="mt-1 text-sm text-ivory/60">{e.address}</p>
+                <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
                   <a
                     href={`https://www.google.com/maps/dir/?api=1&destination=${e.mapsQuery}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-8 inline-flex items-center gap-2 rounded-full border border-gold/50 px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-gold-deep transition-all hover:border-gold hover:shadow-gold"
+                    className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-burgundy-deep shadow-gold transition-all hover:opacity-90"
+                    style={{ background: "var(--gradient-gold)" }}
                   >
                     <MapPin className="h-3.5 w-3.5" /> {t.location.directions}
+                  </a>
+                  <a
+                    href={e.gcal}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-gold/50 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-gold transition-all hover:border-gold hover:bg-gold/10"
+                  >
+                    <Calendar className="h-3.5 w-3.5" /> {t.events.addCal}
                   </a>
                 </div>
               </motion.article>
@@ -755,58 +763,71 @@ function EventCards() {
 // ─── Location ─────────────────────────────────────────────────────────────────
 function Location() {
   const { t } = useLang();
+  const venues = [
+    {
+      icon: MoonStar,
+      venue: t.events.nikahVenue,
+      meta: `${t.events.nikah} · ${t.events.nikahTime}`,
+      addr: t.events.nikahAddress,
+      mapsQuery: MAPS_QUERY,
+    },
+    {
+      icon: Home,
+      venue: t.events.receptionVenue,
+      meta: `${t.events.reception} · ${t.events.receptionTime}`,
+      addr: t.events.receptionAddress,
+      mapsQuery: RECEPTION_MAPS_QUERY,
+    },
+  ];
   return (
     <section className="relative py-24 sm:py-32">
-      <div className="mx-auto max-w-5xl px-6">
+      <div className="bg-arabesque absolute inset-0" />
+      <div className="relative mx-auto max-w-5xl px-6">
         <SectionHeading eyebrow={t.location.eyebrow} title={t.location.title} />
-        <motion.div {...fadeUp} className="glass-card overflow-hidden rounded-3xl">
-          <div className="aspect-video w-full">
-            <iframe
-              title="Wedding Venue"
-              src={`https://www.google.com/maps?q=${MAPS_QUERY}&output=embed`}
-              className="h-full w-full grayscale-[20%]"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+        {/* Double gold frame with ornate corners around the map */}
+        <motion.div
+          {...fadeUp}
+          className="relative rounded-[2rem] border-2 border-gold/50 p-2 shadow-gold sm:p-3"
+        >
+          <div className="pointer-events-none absolute -inset-1 z-10 text-gold/80">
+            <OrnateCorner className="absolute left-0 top-0 h-10 w-10 sm:h-14 sm:w-14" />
+            <OrnateCorner className="absolute right-0 top-0 h-10 w-10 -scale-x-100 sm:h-14 sm:w-14" />
+            <OrnateCorner className="absolute bottom-0 left-0 h-10 w-10 -scale-y-100 sm:h-14 sm:w-14" />
+            <OrnateCorner className="absolute bottom-0 right-0 h-10 w-10 -scale-x-100 -scale-y-100 sm:h-14 sm:w-14" />
           </div>
-          <div className="divide-y divide-gold/15">
-            <div className="grid gap-4 p-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 text-xl italic">
-                  <MoonStar className="h-4 w-4 shrink-0 text-gold-deep" />
-                  {t.events.nikahVenue}
-                </div>
-                <div className="mt-1 text-sm text-muted-foreground">
-                  {t.events.nikah} · {t.events.nikahTime}
-                </div>
-              </div>
-              <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${MAPS_QUERY}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-gold/50 bg-luxe px-6 py-3 text-xs uppercase tracking-[0.2em] text-gold-deep transition-all hover:border-gold hover:shadow-gold"
-              >
-                <MapPin className="h-4 w-4" /> {t.location.directions}
-              </a>
+          <div className="overflow-hidden rounded-[1.6rem] border border-gold/30">
+            <div className="aspect-video w-full">
+              <iframe
+                title="Wedding Venue"
+                src={`https://www.google.com/maps?q=${MAPS_QUERY}&output=embed`}
+                className="h-full w-full grayscale-[20%]"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
             </div>
-            <div className="grid gap-4 p-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 text-xl italic">
-                  <Home className="h-4 w-4 shrink-0 text-gold-deep" />
-                  {t.events.receptionVenue}
-                </div>
-                <div className="mt-1 text-sm text-muted-foreground">
-                  {t.events.reception} · {t.events.receptionTime} · {t.events.receptionAddress}
-                </div>
-              </div>
-              <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${RECEPTION_MAPS_QUERY}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-gold/50 bg-luxe px-6 py-3 text-xs uppercase tracking-[0.2em] text-gold-deep transition-all hover:border-gold hover:shadow-gold"
-              >
-                <MapPin className="h-4 w-4" /> {t.location.directions}
-              </a>
+            {/* Burgundy venue band */}
+            <div className="scene-dark grid divide-y divide-gold/20 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+              {venues.map((v) => {
+                const Icon = v.icon;
+                return (
+                  <div key={v.venue} className="flex flex-col items-center p-8 text-center">
+                    <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 text-gold">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="font-serif text-xl text-ivory">{v.venue}</div>
+                    <div className="mt-1 text-sm text-gold">{v.meta}</div>
+                    <div className="mt-1 text-sm text-ivory/60">{v.addr}</div>
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${v.mapsQuery}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-5 inline-flex items-center gap-2 rounded-full border border-gold/50 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-gold transition-all hover:border-gold hover:bg-gold/10"
+                    >
+                      <MapPin className="h-3.5 w-3.5" /> {t.location.directions}
+                    </a>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </motion.div>
@@ -815,33 +836,71 @@ function Location() {
   );
 }
 
-// ─── Schedule ─────────────────────────────────────────────────────────────────
+// ─── Schedule — timeline on a dark scene ──────────────────────────────────────
+// The Nikah itself is the highlighted "key" moment on the rail.
+const SCHEDULE_KEY_INDEX = 1;
+
 function Schedule() {
   const { t } = useLang();
   return (
-    <section className="relative py-24 sm:py-32">
-      <div className="mx-auto max-w-3xl px-6">
-        <SectionHeading eyebrow={t.schedule.eyebrow} title={t.schedule.title} />
-        <div className="glass-card overflow-hidden rounded-3xl">
-          {t.schedule.items.map((it, i) => (
-            <motion.div
-              key={it.title}
-              {...fadeUp}
-              transition={{ ...fadeUp.transition, delay: i * 0.05 }}
-              className={`grid grid-cols-[auto_minmax(0,1fr)] items-center gap-6 p-6 sm:p-8 ${
-                i !== t.schedule.items.length - 1 ? "border-b border-gold/15" : ""
-              }`}
-            >
-              <div className="text-foil-deep w-24 shrink-0 font-serif text-lg italic sm:w-32 sm:text-xl">
-                {it.time}
-              </div>
-              <div className="min-w-0">
-                <div className="text-base sm:text-lg">{it.title}</div>
-                <div className="mt-1 text-xs text-muted-foreground sm:text-sm">{it.desc}</div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+    <section className="scene-dark relative overflow-hidden py-24 sm:py-32">
+      <div className="arabesque-pattern absolute inset-0" />
+      <div className="relative mx-auto max-w-2xl px-6">
+        <motion.div {...fadeUp} className="mb-14 flex flex-col items-center text-center">
+          <span className="mb-4 text-[0.7rem] uppercase tracking-[0.3em] text-gold">
+            {t.schedule.eyebrow}
+          </span>
+          <div className="mb-4 flex items-center gap-4 text-gold">
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
+            <RubElHizb className="h-5 w-5" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+          </div>
+          <h2 className="font-serif text-4xl font-light italic text-ivory sm:text-5xl">
+            {t.schedule.title}
+          </h2>
+        </motion.div>
+        <ol>
+          {t.schedule.items.map((it, i) => {
+            const isKey = i === SCHEDULE_KEY_INDEX;
+            const isLast = i === t.schedule.items.length - 1;
+            return (
+              <motion.li
+                key={it.title}
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: i * 0.07 }}
+                className="grid grid-cols-[max-content_16px_1fr] items-stretch gap-x-4 sm:gap-x-6"
+              >
+                <span className="w-20 pt-0.5 text-right font-serif text-lg font-semibold tabular-nums text-gold sm:w-24 sm:text-xl">
+                  {it.time}
+                </span>
+                <span className="relative flex justify-center">
+                  {!isLast && (
+                    <span className="absolute bottom-0 top-3 w-px bg-gradient-to-b from-gold/50 to-gold/15" />
+                  )}
+                  <span
+                    className={`relative z-10 mt-2 block h-2.5 w-2.5 rotate-45 border border-gold ${
+                      isKey
+                        ? "bg-gold shadow-[0_0_0_5px_oklch(0.78_0.11_80_/_0.15)]"
+                        : "bg-burgundy-deep"
+                    }`}
+                  />
+                </span>
+                <div className={isLast ? "pb-2" : "pb-10"}>
+                  <h3
+                    className={`font-serif text-lg leading-snug sm:text-xl ${
+                      isKey ? "text-gold" : "text-ivory"
+                    }`}
+                  >
+                    {it.title}
+                  </h3>
+                  <p className="mt-1.5 max-w-[44ch] text-sm leading-relaxed text-ivory/60">
+                    {it.desc}
+                  </p>
+                </div>
+              </motion.li>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );
@@ -851,31 +910,24 @@ function Schedule() {
 function Blessings() {
   const { t } = useLang();
   return (
-    <section className="relative overflow-hidden py-24 sm:py-32">
-      <div className="bg-arabesque absolute inset-0" />
+    <section className="scene-dark relative overflow-hidden py-24 sm:py-32">
+      <div className="arabesque-pattern absolute inset-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,oklch(0.45_0.12_25_/_0.3)_0%,transparent_60%)]" />
       <div className="relative mx-auto max-w-3xl px-6 text-center">
-        <motion.img
-          {...fadeUp}
-          src={calligraphy}
-          alt="Arabic calligraphy"
-          width={512}
-          height={256}
-          loading="lazy"
-          className="mx-auto mb-10 h-32 w-auto opacity-90"
-        />
+        <motion.div {...fadeUp}>
+          <RubElHizb className="mx-auto h-8 w-8 text-gold" />
+        </motion.div>
         <motion.p
           {...fadeUp}
-          className="font-arabic text-3xl leading-loose text-gold-deep sm:text-4xl"
+          dir="rtl"
+          className="font-arabic mt-8 text-3xl leading-loose text-gold sm:text-4xl"
         >
           بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ
         </motion.p>
-        <motion.p {...fadeUp} className="mt-6 text-sm italic text-muted-foreground sm:text-base">
+        <motion.p {...fadeUp} className="mt-6 text-sm italic text-ivory/60 sm:text-base">
           {t.blessings.translit}
         </motion.p>
-        <motion.p
-          {...fadeUp}
-          className="mt-6 text-base leading-relaxed text-foreground/75 sm:text-lg"
-        >
+        <motion.p {...fadeUp} className="mt-6 text-base leading-relaxed text-ivory/80 sm:text-lg">
           {t.blessings.meaning}
         </motion.p>
       </div>
@@ -1097,23 +1149,32 @@ function GuestBook() {
 }
 
 function WishCard({ wish }: { wish: { name: string; text: string } }) {
+  // Solid background (no backdrop blur) so the sliding animation stays smooth.
   return (
-    <div className="glass-card w-72 shrink-0 rounded-2xl p-6">
+    <div className="flex h-44 w-72 shrink-0 flex-col rounded-2xl border border-gold/30 bg-ivory/95 p-6 shadow-glass">
       <div className="flex items-center gap-3">
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-luxe text-sm font-medium text-gold-deep">
+        <div
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-medium text-ivory"
+          style={{ background: "var(--gradient-gold)" }}
+        >
           {wish.name[0]}
         </div>
-        <div className="min-w-0 truncate font-serif italic text-foreground">{wish.name}</div>
+        <div className="min-w-0 truncate font-serif text-lg italic text-foreground">
+          {wish.name}
+        </div>
       </div>
-      <p className="mt-4 line-clamp-4 text-sm leading-relaxed text-foreground/75">"{wish.text}"</p>
+      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-foreground/75">"{wish.text}"</p>
+      <div className="mt-auto flex items-center gap-2 pt-2 text-gold">
+        <span className="h-px w-6 bg-gradient-to-r from-gold/60 to-transparent" />
+        <span className="block h-1 w-1 rotate-45 border border-gold/70" />
+      </div>
     </div>
   );
 }
 
 function WishMarquee({ wishes }: { wishes: { name: string; text: string }[] }) {
-  // Two rows sliding in opposite directions. The list is repeated until each
-  // row has enough cards to loop seamlessly, and each track renders its row
-  // twice (the animation translates by exactly half the track width).
+  // Two rows sliding in opposite directions. Each track holds two identical
+  // groups and translates by exactly one group width, so the loop never jumps.
   const [row1, row2] = useMemo(() => {
     const repeats = Math.max(1, Math.ceil(8 / wishes.length));
     const padded = Array.from({ length: repeats }).flatMap(() => wishes);
@@ -1124,19 +1185,17 @@ function WishMarquee({ wishes }: { wishes: { name: string; text: string }[] }) {
     <motion.div {...fadeUp} className="space-y-4">
       {[row1, row2].map((row, r) =>
         row.length === 0 ? null : (
-          <div
-            key={r}
-            className="marquee-row overflow-hidden"
-            style={{
-              maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
-            }}
-          >
+          <div key={r} className="marquee-row">
             <div
               className={`marquee-track ${r === 1 ? "marquee-track--reverse" : ""}`}
-              style={{ "--marquee-duration": `${row.length * 9}s` } as React.CSSProperties}
+              style={{ "--marquee-duration": `${row.length * 8}s` } as React.CSSProperties}
             >
-              {[...row, ...row].map((w, i) => (
-                <WishCard key={`${r}-${i}`} wish={w} />
+              {[0, 1].map((copy) => (
+                <div key={copy} className="marquee-group" aria-hidden={copy === 1}>
+                  {row.map((w, i) => (
+                    <WishCard key={`${copy}-${i}`} wish={w} />
+                  ))}
+                </div>
               ))}
             </div>
           </div>
@@ -1596,11 +1655,10 @@ function InvitationPage() {
               <CouplePortrait />
               <Families />
               <GrandScene />
-              <EventCards />
               <Countdown />
-              <Schedule />
-              <Travel />
+              <EventCards />
               <Location />
+              <Schedule />
               <GuestBook />
               <BadgeMaker />
               <Blessings />
