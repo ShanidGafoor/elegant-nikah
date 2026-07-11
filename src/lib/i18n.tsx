@@ -38,8 +38,6 @@ const en = {
   couple: {
     eyebrow: "The Couple",
     title: "Two Hearts, One Dua",
-    bride: "The Bride",
-    groom: "The Groom",
   },
   family: {
     eyebrow: "With the Blessings of Their Families",
@@ -47,17 +45,30 @@ const en = {
     sonOf: "Son of",
     daughterOf: "Daughter of",
     groomParents: "— & —",
-    brideParents: "Haneef & —",
+    brideParents: "Haneef & Fareedha",
+  },
+  grand: {
+    title: "One Blessed Day",
+    body: "From the sacred Nikah at Manna Juma Masjid to a joyous reception at “Zainab”, Puthiyatheru — join us as two families become one, InshaAllah.",
   },
   schedule: {
     eyebrow: "Programme",
     title: "How the Day Unfolds",
     items: [
-      { time: "9:30 AM", title: "Guest Arrival" },
-      { time: "10:00 AM", title: "Nikah Ceremony" },
-      { time: "11:00 AM", title: "Group Photos" },
-      { time: "1:00 PM", title: "Reception & Lunch" },
-      { time: "3:00 PM", title: "Vote of Thanks" },
+      { time: "9:30 AM", title: "Guest Arrival", desc: "Salaams, welcome & seating" },
+      { time: "10:00 AM", title: "Nikah Ceremony", desc: "Sacred vows at Manna Juma Masjid" },
+      { time: "11:00 AM", title: "Group Photos", desc: "Cherished moments with family & friends" },
+      { time: "1:00 PM", title: "Reception & Lunch", desc: "A feast at “Zainab”, Puthiyatheru" },
+      { time: "3:00 PM", title: "Vote of Thanks", desc: "Duas & warm farewells" },
+    ],
+  },
+  travel: {
+    eyebrow: "Getting There",
+    title: "Travel & Arrival",
+    items: [
+      { title: "By Road", body: "Landmark & parking details — to be added" },
+      { title: "By Train", body: "Kannur Railway Station · — km" },
+      { title: "By Air", body: "Kannur International Airport · — km" },
     ],
   },
   location: { eyebrow: "Find Us", title: "The Venue", directions: "Get Directions" },
@@ -146,8 +157,6 @@ const ml: Translation = {
   couple: {
     eyebrow: "ദമ്പതികൾ",
     title: "രണ്ട് ഹൃദയങ്ങൾ, ഒരു ദുആ",
-    bride: "വധു",
-    groom: "വരൻ",
   },
   family: {
     eyebrow: "കുടുംബങ്ങളുടെ ആശീർവാദത്തോടെ",
@@ -155,17 +164,38 @@ const ml: Translation = {
     sonOf: "മകൻ",
     daughterOf: "മകൾ",
     groomParents: "— & —",
-    brideParents: "ഹനീഫ് & —",
+    brideParents: "ഹനീഫ് & ഫരീദ",
+  },
+  grand: {
+    title: "അനുഗ്രഹീതമായ ഒരു ദിനം",
+    body: "മന്ന ജുമാ മസ്ജിദിലെ പവിത്രമായ നിക്കാഹ് മുതൽ പുതിയതെരു “സൈനബി”ലെ സന്തോഷകരമായ സൽക്കാരം വരെ — ഇരു കുടുംബങ്ങൾ ഒന്നാകുന്ന ഈ ദിനത്തിൽ ഞങ്ങളോടൊപ്പം ചേരൂ, ഇൻശാ അല്ലാഹ്.",
   },
   schedule: {
     eyebrow: "പരിപാടികൾ",
     title: "ആ ദിനം ഇങ്ങനെ",
     items: [
-      { time: "രാവിലെ 9:30", title: "അതിഥികളുടെ വരവ്" },
-      { time: "രാവിലെ 10:00", title: "നിക്കാഹ്" },
-      { time: "രാവിലെ 11:00", title: "ഗ്രൂപ്പ് ഫോട്ടോ" },
-      { time: "ഉച്ചയ്ക്ക് 1:00", title: "റിസപ്ഷൻ & ഉച്ചഭക്ഷണം" },
-      { time: "ഉച്ചകഴിഞ്ഞ് 3:00", title: "നന്ദി പ്രകാശനം" },
+      { time: "രാവിലെ 9:30", title: "അതിഥികളുടെ വരവ്", desc: "സലാമും സ്വീകരണവും" },
+      { time: "രാവിലെ 10:00", title: "നിക്കാഹ്", desc: "മന്ന ജുമാ മസ്ജിദിൽ പവിത്രമായ നിക്കാഹ്" },
+      {
+        time: "രാവിലെ 11:00",
+        title: "ഗ്രൂപ്പ് ഫോട്ടോ",
+        desc: "കുടുംബത്തോടും കൂട്ടുകാരോടും ഒപ്പം ഫോട്ടോകൾ",
+      },
+      {
+        time: "ഉച്ചയ്ക്ക് 1:00",
+        title: "റിസപ്ഷൻ & ഉച്ചഭക്ഷണം",
+        desc: "പുതിയതെരു “സൈനബി”ൽ വിരുന്ന്",
+      },
+      { time: "ഉച്ചകഴിഞ്ഞ് 3:00", title: "നന്ദി പ്രകാശനം", desc: "ദുആകളും യാത്രാമൊഴികളും" },
+    ],
+  },
+  travel: {
+    eyebrow: "എത്തിച്ചേരാൻ",
+    title: "യാത്രാ വിവരങ്ങൾ",
+    items: [
+      { title: "റോഡ് മാർഗം", body: "ലാൻഡ്മാർക്ക് & പാർക്കിംഗ് വിവരങ്ങൾ — പിന്നീട് ചേർക്കും" },
+      { title: "ട്രെയിൻ", body: "കണ്ണൂർ റെയിൽവേ സ്റ്റേഷൻ · — കി.മീ" },
+      { title: "വിമാനം", body: "കണ്ണൂർ അന്താരാഷ്ട്ര വിമാനത്താവളം · — കി.മീ" },
     ],
   },
   location: { eyebrow: "സ്ഥലം", title: "വേദി", directions: "വഴി കാണുക" },

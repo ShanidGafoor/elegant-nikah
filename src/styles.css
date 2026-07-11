@@ -234,6 +234,28 @@
   animation: foil-shimmer 6s linear infinite;
 }
 
+/* Auto-sliding wish card rows; track content is duplicated for a seamless loop */
+@keyframes marquee-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 1rem;
+  animation: marquee-slide var(--marquee-duration, 45s) linear infinite;
+}
+.marquee-track--reverse {
+  animation-direction: reverse;
+}
+.marquee-row:hover .marquee-track {
+  animation-play-state: paused;
+}
+
 @keyframes float-slow {
   0%,
   100% {

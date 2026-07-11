@@ -3,14 +3,17 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
+  Car,
   Clock,
   MapPin,
   Home,
   ImagePlus,
   MoonStar,
   Phone,
+  Plane,
   Share2,
   Download,
+  TrainFront,
   Volume2,
   VolumeX,
   MessageCircleHeart,
@@ -379,64 +382,202 @@ function Hero({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-// ─── Couple portraits ─────────────────────────────────────────────────────────
-// Drop the real photos into src/assets and import them here when ready.
-const BRIDE_PHOTO: string | null = null;
-const GROOM_PHOTO: string | null = null;
+// ─── Couple portrait ──────────────────────────────────────────────────────────
+// Drop the real couple photo into src/assets and import it here when ready;
+// until then an artistic faceless illustration fills the frame.
+const COUPLE_PHOTO: string | null = null;
 
-function PortraitCard({
-  photo,
-  name,
-  role,
-  delay,
-}: {
-  photo: string | null;
-  name: string;
-  role: string;
-  delay: number;
-}) {
+// Hand-drawn night-of-the-nikah scene: crescent, stars, lanterns and a mosque.
+function CoupleArt() {
   return (
-    <motion.figure
-      {...fadeUp}
-      transition={{ ...fadeUp.transition, delay }}
-      className="flex flex-col items-center"
+    <svg
+      viewBox="0 0 600 800"
+      className="h-full w-full"
+      role="img"
+      aria-label="Artistic illustration"
     >
-      {/* Mihrab-arch frame */}
-      <div className="relative w-64 overflow-hidden rounded-b-3xl rounded-t-[10rem] border-2 border-gold/50 p-2 shadow-gold sm:w-72">
-        <div className="scene-dark relative aspect-[3/4] w-full overflow-hidden rounded-b-2xl rounded-t-[9rem]">
-          {photo ? (
-            <img src={photo} alt={name} className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center gap-4">
-              <span className="font-script text-foil text-8xl">{name[0]}</span>
-              <RubElHizb className="h-8 w-8 text-gold/70" />
-            </div>
-          )}
-        </div>
-      </div>
-      <figcaption className="mt-6 text-center">
-        <div className="font-script text-foil-deep text-5xl leading-snug">{name}</div>
-        <div className="mt-2 text-xs uppercase tracking-[0.3em] text-gold-deep">{role}</div>
-      </figcaption>
-    </motion.figure>
+      <defs>
+        <linearGradient id="ca-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.32 0.1 18)" />
+          <stop offset="60%" stopColor="oklch(0.24 0.09 14)" />
+          <stop offset="100%" stopColor="oklch(0.18 0.07 12)" />
+        </linearGradient>
+        <linearGradient id="ca-gold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="oklch(0.84 0.11 84)" />
+          <stop offset="50%" stopColor="oklch(0.62 0.13 72)" />
+          <stop offset="100%" stopColor="oklch(0.84 0.11 84)" />
+        </linearGradient>
+      </defs>
+      <rect width="600" height="800" fill="url(#ca-sky)" />
+      {/* stars */}
+      {[
+        [60, 90, 2.4],
+        [140, 50, 1.6],
+        [230, 120, 2],
+        [320, 60, 1.4],
+        [420, 110, 2.2],
+        [520, 70, 1.6],
+        [80, 220, 1.4],
+        [500, 210, 2],
+        [550, 320, 1.4],
+        [40, 340, 1.8],
+        [180, 180, 1.2],
+        [380, 170, 1.6],
+        [280, 230, 1.2],
+        [460, 300, 1.3],
+      ].map(([x, y, r], i) => (
+        <circle key={i} cx={x} cy={y} r={r} fill="oklch(0.9 0.06 90)" opacity="0.8" />
+      ))}
+      {/* crescent moon */}
+      <g transform="translate(430 150)">
+        <circle r="62" fill="url(#ca-gold)" />
+        <circle cx="26" cy="-14" r="54" fill="url(#ca-sky)" />
+      </g>
+      {/* hanging lanterns */}
+      <g stroke="url(#ca-gold)" strokeWidth="2" fill="none">
+        <line x1="120" y1="0" x2="120" y2="140" />
+        <line x1="200" y1="0" x2="200" y2="80" />
+      </g>
+      <g fill="url(#ca-gold)">
+        <g transform="translate(120 160)">
+          <path d="M-16 -18 H16 L20 6 Q0 26 -20 6 Z" opacity="0.95" />
+          <rect x="-8" y="-26" width="16" height="8" rx="2" />
+          <circle cy="22" r="4" />
+        </g>
+        <g transform="translate(200 100)">
+          <path d="M-13 -15 H13 L16 5 Q0 21 -16 5 Z" opacity="0.95" />
+          <rect x="-6" y="-21" width="12" height="6" rx="2" />
+          <circle cy="17" r="3" />
+        </g>
+      </g>
+      {/* mosque silhouette */}
+      <g fill="oklch(0.14 0.05 12)">
+        <rect x="60" y="640" width="480" height="160" />
+        {/* main dome */}
+        <path d="M300 468 Q385 528 385 640 H215 Q215 528 300 468 Z" />
+        <rect x="296" y="428" width="8" height="44" />
+        <circle cx="300" cy="424" r="7" />
+        {/* side domes */}
+        <path d="M170 560 Q215 596 215 640 H125 Q125 596 170 560 Z" />
+        <path d="M430 560 Q475 596 475 640 H385 Q385 596 430 560 Z" />
+        {/* minarets */}
+        <rect x="78" y="480" width="22" height="160" />
+        <path d="M89 430 L104 484 H74 Z" />
+        <rect x="500" y="480" width="22" height="160" />
+        <path d="M511 430 L526 484 H496 Z" />
+      </g>
+      {/* gold outlines on domes */}
+      <g fill="none" stroke="url(#ca-gold)" strokeWidth="2.5" opacity="0.9">
+        <path d="M300 468 Q385 528 385 640" />
+        <path d="M300 468 Q215 528 215 640" />
+        <path d="M170 560 Q215 596 215 640" />
+        <path d="M430 560 Q475 596 475 640" />
+      </g>
+      {/* arched doorway with warm light */}
+      <path
+        d="M300 640 Q336 596 336 560 Q336 524 300 524 Q264 524 264 560 Q264 596 300 640 Z"
+        transform="translate(0 60)"
+        fill="oklch(0.75 0.12 80)"
+        opacity="0.85"
+      />
+      {/* names ornament: interlocked rings */}
+      <g fill="none" stroke="url(#ca-gold)" strokeWidth="3" opacity="0.95">
+        <circle cx="282" cy="330" r="34" />
+        <circle cx="318" cy="330" r="34" />
+      </g>
+    </svg>
   );
 }
 
-function Portraits() {
+function CouplePortrait() {
   const { t } = useLang();
   return (
     <section className="relative py-24 sm:py-32">
       <div className="bg-arabesque absolute inset-0" />
       <div className="relative mx-auto max-w-4xl px-6">
         <SectionHeading eyebrow={t.couple.eyebrow} title={t.couple.title} />
-        <div className="flex flex-wrap items-start justify-center gap-12 sm:gap-16">
-          <PortraitCard photo={BRIDE_PHOTO} name={t.names.bride} role={t.couple.bride} delay={0} />
-          <PortraitCard
-            photo={GROOM_PHOTO}
-            name={t.names.groom}
-            role={t.couple.groom}
-            delay={0.15}
-          />
+        <motion.figure {...fadeUp} className="flex flex-col items-center">
+          {/* Mihrab-arch frame */}
+          <div className="relative w-72 overflow-hidden rounded-b-3xl rounded-t-[11rem] border-2 border-gold/50 p-2 shadow-gold sm:w-96 sm:rounded-t-[13rem]">
+            <div className="scene-dark relative aspect-[3/4] w-full overflow-hidden rounded-b-2xl rounded-t-[10rem] sm:rounded-t-[12rem]">
+              {COUPLE_PHOTO ? (
+                <img
+                  src={COUPLE_PHOTO}
+                  alt={`${t.names.bride} & ${t.names.groom}`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <CoupleArt />
+              )}
+            </div>
+          </div>
+          <figcaption className="mt-8 text-center">
+            <div className="font-script text-foil-deep pb-2 text-5xl leading-snug sm:text-6xl">
+              {t.names.bride} & {t.names.groom}
+            </div>
+          </figcaption>
+        </motion.figure>
+      </div>
+    </section>
+  );
+}
+
+// ─── Grand statement scene ────────────────────────────────────────────────────
+function GrandScene() {
+  const { t } = useLang();
+  return (
+    <section className="scene-dark relative overflow-hidden py-28 text-center sm:py-36">
+      <div className="arabesque-pattern absolute inset-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,oklch(0.45_0.12_25_/_0.3)_0%,transparent_65%)]" />
+      <div className="relative mx-auto max-w-3xl px-6">
+        <motion.div {...fadeUp}>
+          <RubElHizb className="mx-auto h-8 w-8 text-gold" />
+        </motion.div>
+        <motion.h2 {...fadeUp} className="text-foil mt-6 font-serif text-4xl italic sm:text-6xl">
+          {t.grand.title}
+        </motion.h2>
+        <motion.p
+          {...fadeUp}
+          className="mx-auto mt-8 max-w-xl text-sm leading-relaxed text-ivory/75 sm:text-base"
+        >
+          {t.grand.body}
+        </motion.p>
+        <motion.div {...fadeUp} className="mt-10 flex items-center justify-center gap-4 text-gold">
+          <span className="h-px w-16 bg-gradient-to-r from-transparent to-gold" />
+          <MoonStar className="h-5 w-5" />
+          <span className="h-px w-16 bg-gradient-to-l from-transparent to-gold" />
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Travel & arrival ─────────────────────────────────────────────────────────
+function Travel() {
+  const { t } = useLang();
+  const icons = [Car, TrainFront, Plane];
+  return (
+    <section className="relative py-24 sm:py-32">
+      <div className="mx-auto max-w-5xl px-6">
+        <SectionHeading eyebrow={t.travel.eyebrow} title={t.travel.title} />
+        <div className="grid gap-6 sm:grid-cols-3">
+          {t.travel.items.map((it, i) => {
+            const Icon = icons[i] ?? MapPin;
+            return (
+              <motion.div
+                key={it.title}
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: i * 0.12 }}
+                className="glass-card rounded-3xl p-8 text-center"
+              >
+                <div className="mx-auto mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 bg-ivory/70 text-gold-deep">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="font-serif text-xl italic">{it.title}</h3>
+                <p className="mt-3 text-sm text-muted-foreground">{it.body}</p>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -694,7 +835,10 @@ function Schedule() {
               <div className="text-foil-deep w-24 shrink-0 font-serif text-lg italic sm:w-32 sm:text-xl">
                 {it.time}
               </div>
-              <div className="min-w-0 text-base sm:text-lg">{it.title}</div>
+              <div className="min-w-0">
+                <div className="text-base sm:text-lg">{it.title}</div>
+                <div className="mt-1 text-xs text-muted-foreground sm:text-sm">{it.desc}</div>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -945,32 +1089,60 @@ function GuestBook() {
             {t.guestbook.empty}
           </motion.p>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <AnimatePresence>
-              {wishes.map((w, i) => (
-                <motion.div
-                  key={`${w.name}-${i}`}
-                  layout
-                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.5 }}
-                  className="glass-card rounded-2xl p-6"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-luxe text-sm font-medium text-gold-deep">
-                      {w.name[0]}
-                    </div>
-                    <div className="min-w-0 truncate italic text-foreground">{w.name}</div>
-                  </div>
-                  <p className="mt-4 text-sm leading-relaxed text-foreground/75">"{w.text}"</p>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
+          <WishMarquee wishes={wishes} />
         )}
       </div>
     </section>
+  );
+}
+
+function WishCard({ wish }: { wish: { name: string; text: string } }) {
+  return (
+    <div className="glass-card w-72 shrink-0 rounded-2xl p-6">
+      <div className="flex items-center gap-3">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-luxe text-sm font-medium text-gold-deep">
+          {wish.name[0]}
+        </div>
+        <div className="min-w-0 truncate font-serif italic text-foreground">{wish.name}</div>
+      </div>
+      <p className="mt-4 line-clamp-4 text-sm leading-relaxed text-foreground/75">"{wish.text}"</p>
+    </div>
+  );
+}
+
+function WishMarquee({ wishes }: { wishes: { name: string; text: string }[] }) {
+  // Two rows sliding in opposite directions. The list is repeated until each
+  // row has enough cards to loop seamlessly, and each track renders its row
+  // twice (the animation translates by exactly half the track width).
+  const [row1, row2] = useMemo(() => {
+    const repeats = Math.max(1, Math.ceil(8 / wishes.length));
+    const padded = Array.from({ length: repeats }).flatMap(() => wishes);
+    return [padded.filter((_, i) => i % 2 === 0), padded.filter((_, i) => i % 2 === 1)];
+  }, [wishes]);
+
+  return (
+    <motion.div {...fadeUp} className="space-y-4">
+      {[row1, row2].map((row, r) =>
+        row.length === 0 ? null : (
+          <div
+            key={r}
+            className="marquee-row overflow-hidden"
+            style={{
+              maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+            }}
+          >
+            <div
+              className={`marquee-track ${r === 1 ? "marquee-track--reverse" : ""}`}
+              style={{ "--marquee-duration": `${row.length * 9}s` } as React.CSSProperties}
+            >
+              {[...row, ...row].map((w, i) => (
+                <WishCard key={`${r}-${i}`} wish={w} />
+              ))}
+            </div>
+          </div>
+        ),
+      )}
+    </motion.div>
   );
 }
 
@@ -1421,11 +1593,13 @@ function InvitationPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
             >
-              <Portraits />
+              <CouplePortrait />
               <Families />
+              <GrandScene />
               <EventCards />
               <Countdown />
               <Schedule />
+              <Travel />
               <Location />
               <GuestBook />
               <BadgeMaker />
