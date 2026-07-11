@@ -6,19 +6,21 @@ import {
   Clock,
   MapPin,
   Heart,
+  Home,
+  MoonStar,
+  Phone,
   Send,
   Share2,
   Download,
   Volume2,
   VolumeX,
   X,
-  Sparkles,
-  Gift,
-  Users,
   MessageCircleHeart,
   ChevronDown,
 } from "lucide-react";
 
+import { LanguageProvider, useLang, type Lang } from "@/lib/i18n";
+import weddingSong from "@/assets/febi.mp3";
 import heroBg from "@/assets/hero-bg.jpg";
 import calligraphy from "@/assets/calligraphy.png";
 import g1 from "@/assets/gallery-1.jpg";
@@ -30,27 +32,24 @@ import g6 from "@/assets/gallery-6.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      { property: "og:url", content: "/" },
-    ],
+    meta: [{ property: "og:url", content: "/" }],
     links: [{ rel: "canonical", href: "/" }],
   }),
   component: InvitationPage,
 });
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-const BRIDE = "Aisha";
-const GROOM = "Ahmed";
-const WEDDING_DATE_ISO = "2026-08-15T16:00:00";
-const WEDDING_DATE_DISPLAY = "Sunday, 15 August 2026";
-const NIKAH_TIME = "4:00 PM";
-const NIKAH_VENUE = "Al-Noor Grand Mosque";
-const NIKAH_ADDRESS = "12 Rose Garden Avenue, Hyderabad";
-const RECEPTION_TIME = "7:30 PM";
-const RECEPTION_VENUE = "The Ivory Ballroom";
-const RECEPTION_ADDRESS = "Grand Avenue, Banjara Hills, Hyderabad";
-const MAPS_QUERY = encodeURIComponent(`${NIKAH_VENUE}, ${NIKAH_ADDRESS}`);
-const WHATSAPP_NUMBER = "911234567890";
+const BRIDE = "Febi";
+const GROOM = "Shahbaz";
+const WEDDING_DATE_ISO = "2027-02-15T10:00:00";
+const NIKAH_VENUE = "Manna Juma Masjid";
+const NIKAH_ADDRESS = "Manna";
+const RECEPTION_ADDRESS = "Puthiyatheru";
+const MAPS_QUERY = encodeURIComponent(`${NIKAH_VENUE}, Kannur`);
+const RECEPTION_MAPS_QUERY = encodeURIComponent(`${RECEPTION_ADDRESS}, Kannur, Kerala`);
+const CONTACT_PHONE = "9400674324";
+const CONTACT_PHONE_DISPLAY = "+91 94006 74324";
+const WHATSAPP_NUMBER = `91${CONTACT_PHONE}`;
 
 // ─── Reusable animation helpers ───────────────────────────────────────────────
 const fadeUp = {
@@ -60,15 +59,61 @@ const fadeUp = {
   transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] as const },
 };
 
+// Malayalam script reads poorly with very wide letter-spacing, so eyebrow
+// labels use a gentler tracking when that language is active.
+function useEyebrowTracking() {
+  const { lang } = useLang();
+  return lang === "ml" ? "tracking-[0.18em]" : "tracking-[0.5em]";
+}
+
+// Rub el Hizb — the eight-pointed Islamic star, used as the signature ornament.
+function RubElHizb({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.1"
+      className={className}
+    >
+      <rect x="6.5" y="6.5" width="11" height="11" />
+      <rect x="6.5" y="6.5" width="11" height="11" transform="rotate(45 12 12)" />
+      <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" opacity="0.8" />
+    </svg>
+  );
+}
+
+// Arabesque corner flourish for framing key content.
+function OrnateCorner({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" className={className}>
+      <path d="M4 76 V24 Q4 4 24 4 H76" strokeWidth="1.6" />
+      <path d="M14 76 V30 Q14 14 30 14 H76" strokeWidth="0.9" opacity="0.55" />
+      <path
+        d="M4 44 Q14 40 14 30 Q18 40 28 40 Q18 44 18 54 Q14 44 4 44 Z"
+        strokeWidth="0.9"
+        opacity="0.7"
+      />
+      <circle cx="4" cy="76" r="2.6" fill="currentColor" stroke="none" opacity="0.85" />
+      <circle cx="76" cy="4" r="2.6" fill="currentColor" stroke="none" opacity="0.85" />
+    </svg>
+  );
+}
+
 function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) {
+  const tracking = useEyebrowTracking();
   return (
     <motion.div {...fadeUp} className="mb-14 flex flex-col items-center text-center">
-      <span className="mb-4 text-[0.7rem] uppercase tracking-[0.5em] text-gold-deep">
-        {eyebrow}
-      </span>
+      <span className={`mb-4 text-[0.7rem] uppercase ${tracking} text-gold-deep`}>{eyebrow}</span>
       <div className="mb-4 flex items-center gap-4 text-gold">
         <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
-        <Sparkles className="h-4 w-4" />
+        <motion.span
+          animate={{ rotate: 360 }}
+          transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+          className="inline-block"
+        >
+          <RubElHizb className="h-5 w-5" />
+        </motion.span>
         <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
       </div>
       <h2 className="text-4xl font-light italic text-foreground sm:text-5xl md:text-6xl">
@@ -78,8 +123,48 @@ function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) 
   );
 }
 
+// ─── Language toggle ──────────────────────────────────────────────────────────
+const LANG_OPTIONS: { value: Lang; label: string }[] = [
+  { value: "en", label: "English" },
+  { value: "ml", label: "മലയാളം" },
+];
+
+function LanguageToggle() {
+  const { lang, setLang } = useLang();
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.6 }}
+      className="fixed right-4 top-4 z-[60] flex items-center rounded-full border border-gold/40 bg-ivory/70 p-1 shadow-glass backdrop-blur-xl sm:right-6 sm:top-6"
+    >
+      {LANG_OPTIONS.map((opt) => (
+        <button
+          key={opt.value}
+          onClick={() => setLang(opt.value)}
+          aria-pressed={lang === opt.value}
+          className={`relative rounded-full px-4 py-2 text-xs transition-colors duration-300 sm:px-5 ${
+            lang === opt.value ? "text-ivory" : "text-gold-deep hover:text-foreground"
+          }`}
+        >
+          {lang === opt.value && (
+            <motion.span
+              layoutId="lang-pill"
+              transition={{ type: "spring", bounce: 0.25, duration: 0.6 }}
+              className="absolute inset-0 rounded-full shadow-gold"
+              style={{ background: "var(--gradient-gold)" }}
+            />
+          )}
+          <span className="relative z-10 font-medium">{opt.label}</span>
+        </button>
+      ))}
+    </motion.div>
+  );
+}
+
 // ─── Loading screen ───────────────────────────────────────────────────────────
 function LoadingScreen() {
+  const { t } = useLang();
   return (
     <motion.div
       initial={{ opacity: 1 }}
@@ -93,7 +178,13 @@ function LoadingScreen() {
           transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
           className="h-40 w-40"
         >
-          <svg viewBox="0 0 100 100" className="h-full w-full text-gold" fill="none" stroke="currentColor" strokeWidth="0.6">
+          <svg
+            viewBox="0 0 100 100"
+            className="h-full w-full text-gold"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="0.6"
+          >
             <circle cx="50" cy="50" r="48" opacity="0.4" />
             <circle cx="50" cy="50" r="36" />
             {Array.from({ length: 8 }).map((_, i) => (
@@ -110,7 +201,7 @@ function LoadingScreen() {
           transition={{ delay: 0.4 }}
           className="mt-8 text-center text-sm uppercase tracking-[0.4em] text-gold-deep"
         >
-          Bismillah
+          {t.loading}
         </motion.p>
       </div>
     </motion.div>
@@ -163,6 +254,7 @@ function Petals() {
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero({ onOpen }: { onOpen: () => void }) {
+  const { t, lang } = useLang();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, 120]);
@@ -186,8 +278,20 @@ function Hero({ onOpen }: { onOpen: () => void }) {
 
       <motion.div
         style={{ opacity }}
-        className="relative z-10 mx-auto max-w-3xl px-6 py-24 text-center"
+        className="relative z-10 mx-auto max-w-3xl px-8 py-24 text-center sm:px-14"
       >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.6, delay: 0.4 }}
+          className="pointer-events-none absolute inset-4 text-gold/70 sm:inset-2"
+        >
+          <OrnateCorner className="absolute left-0 top-0 h-14 w-14 sm:h-20 sm:w-20" />
+          <OrnateCorner className="absolute right-0 top-0 h-14 w-14 -scale-x-100 sm:h-20 sm:w-20" />
+          <OrnateCorner className="absolute bottom-0 left-0 h-14 w-14 -scale-y-100 sm:h-20 sm:w-20" />
+          <OrnateCorner className="absolute bottom-0 right-0 h-14 w-14 -scale-x-100 -scale-y-100 sm:h-20 sm:w-20" />
+        </motion.div>
+
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -200,9 +304,11 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2, delay: 0.6 }}
-          className="mt-3 text-xs uppercase tracking-[0.4em] text-muted-foreground"
+          className={`mt-3 text-xs uppercase text-muted-foreground ${
+            lang === "ml" ? "tracking-[0.15em]" : "tracking-[0.4em]"
+          }`}
         >
-          Bismillahir Rahmanir Rahim
+          {t.hero.bismillahLatin}
         </motion.p>
 
         <motion.p
@@ -211,10 +317,10 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           transition={{ duration: 1.2, delay: 1 }}
           className="mx-auto mt-10 max-w-xl text-sm italic leading-relaxed text-foreground/70 sm:text-base"
         >
-          "And among His signs is that He created for you mates from among yourselves so that you may find tranquility in them."
+          {t.hero.quote}
           <br />
           <span className="mt-2 inline-block text-xs not-italic tracking-widest text-gold-deep">
-            — Qur'an 30:21
+            {t.hero.quoteRef}
           </span>
         </motion.p>
 
@@ -222,9 +328,11 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.4 }}
-          className="mt-16 text-xs uppercase tracking-[0.5em] text-gold-deep"
+          className={`mt-16 text-xs uppercase text-gold-deep ${
+            lang === "ml" ? "tracking-[0.18em]" : "tracking-[0.5em]"
+          }`}
         >
-          Together With Their Families
+          {t.hero.together}
         </motion.p>
 
         <motion.h1
@@ -233,7 +341,7 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           transition={{ duration: 1.4, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
           className="mt-6 flex flex-wrap items-center justify-center gap-3 text-5xl italic sm:gap-6 sm:text-7xl md:text-8xl"
         >
-          <span className="text-gold-gradient animate-gradient-drift">{BRIDE}</span>
+          <span className="text-gold-gradient animate-gradient-drift">{t.names.bride}</span>
           <motion.span
             animate={{ scale: [1, 1.15, 1] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
@@ -241,7 +349,7 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           >
             <Heart className="h-8 w-8 fill-current sm:h-12 sm:w-12" />
           </motion.span>
-          <span className="text-gold-gradient animate-gradient-drift">{GROOM}</span>
+          <span className="text-gold-gradient animate-gradient-drift">{t.names.groom}</span>
         </motion.h1>
 
         <motion.p
@@ -250,7 +358,7 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           transition={{ duration: 1, delay: 2 }}
           className="mx-auto mt-10 max-w-lg text-sm leading-relaxed text-foreground/70 sm:text-base"
         >
-          request the honour of your presence to celebrate the blessed occasion of their Nikah and Wedding Reception.
+          {t.hero.invite}
         </motion.p>
 
         <motion.button
@@ -260,10 +368,15 @@ function Hero({ onOpen }: { onOpen: () => void }) {
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
           onClick={onOpen}
-          className="animate-glow-pulse group relative mt-12 overflow-hidden rounded-full border border-gold/50 bg-luxe px-10 py-4 text-xs uppercase tracking-[0.35em] text-gold-deep transition-all hover:border-gold"
+          className={`animate-glow-pulse group relative mt-12 overflow-hidden rounded-full border border-gold/50 bg-luxe px-10 py-4 text-xs uppercase text-gold-deep transition-all hover:border-gold ${
+            lang === "ml" ? "tracking-[0.15em]" : "tracking-[0.35em]"
+          }`}
         >
-          <span className="relative z-10">Open Invitation</span>
-          <span className="absolute inset-0 -z-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100" style={{ background: "var(--gradient-gold)" }} />
+          <span className="relative z-10">{t.hero.open}</span>
+          <span
+            className="absolute inset-0 -z-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+            style={{ background: "var(--gradient-gold)" }}
+          />
         </motion.button>
       </motion.div>
 
@@ -295,21 +408,25 @@ function useCountdown(iso: string) {
 }
 
 function Countdown() {
+  const { t } = useLang();
   const { days, hours, minutes, seconds } = useCountdown(WEDDING_DATE_ISO);
   const items = [
-    { label: "Days", value: days },
-    { label: "Hours", value: hours },
-    { label: "Minutes", value: minutes },
-    { label: "Seconds", value: seconds },
+    { label: t.countdown.days, value: days },
+    { label: t.countdown.hours, value: hours },
+    { label: t.countdown.minutes, value: minutes },
+    { label: t.countdown.seconds, value: seconds },
   ];
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">
       <div className="bg-arabesque absolute inset-0" />
       <div className="relative mx-auto max-w-5xl px-6">
-        <SectionHeading eyebrow="Counting Down" title="Until We Say Qabul" />
+        <SectionHeading eyebrow={t.countdown.eyebrow} title={t.countdown.title} />
         <motion.div {...fadeUp} className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
           {items.map((it) => (
-            <div key={it.label} className="glass-card group relative rounded-3xl p-6 text-center sm:p-8">
+            <div
+              key={it.label}
+              className="glass-card group relative rounded-3xl p-6 text-center sm:p-8"
+            >
               <AnimatePresence mode="popLayout">
                 <motion.div
                   key={it.value}
@@ -322,7 +439,7 @@ function Countdown() {
                   {String(it.value).padStart(2, "0")}
                 </motion.div>
               </AnimatePresence>
-              <div className="mt-3 text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground">
+              <div className="mt-3 text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">
                 {it.label}
               </div>
             </div>
@@ -335,26 +452,27 @@ function Countdown() {
 
 // ─── Event details ────────────────────────────────────────────────────────────
 function EventCards() {
+  const { t } = useLang();
   const events = [
     {
-      label: "Nikah Ceremony",
-      time: NIKAH_TIME,
-      venue: NIKAH_VENUE,
-      address: NIKAH_ADDRESS,
-      icon: Sparkles,
+      label: t.events.nikah,
+      time: t.events.nikahTime,
+      venue: t.events.nikahVenue,
+      address: t.events.nikahAddress,
+      icon: MoonStar,
     },
     {
-      label: "Reception",
-      time: RECEPTION_TIME,
-      venue: RECEPTION_VENUE,
-      address: RECEPTION_ADDRESS,
-      icon: Gift,
+      label: t.events.reception,
+      time: t.events.receptionTime,
+      venue: t.events.receptionVenue,
+      address: t.events.receptionAddress,
+      icon: Home,
     },
   ];
   return (
     <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-5xl px-6">
-        <SectionHeading eyebrow={WEDDING_DATE_DISPLAY} title="The Blessed Day" />
+        <SectionHeading eyebrow={t.events.dateDisplay} title={t.events.title} />
         <div className="grid gap-6 md:grid-cols-2">
           {events.map((e, i) => {
             const Icon = e.icon;
@@ -397,20 +515,15 @@ function EventCards() {
 
 // ─── Our Story timeline ───────────────────────────────────────────────────────
 function Story() {
-  const events = [
-    { year: "2022", title: "First Meeting", body: "A chance introduction through family — a quiet salaam that changed everything." },
-    { year: "2023", title: "The Proposal", body: "Under the guidance of both families, hearts were spoken for with grace and prayer." },
-    { year: "2024", title: "Engagement", body: "A small, sacred ceremony celebrated with those closest to us." },
-    { year: "2026", title: "The Nikah", body: "InshaAllah, we begin our forever — bound by faith, love, and duas." },
-  ];
+  const { t } = useLang();
   return (
     <section className="relative py-24 sm:py-32">
       <div className="bg-arabesque absolute inset-0" />
       <div className="relative mx-auto max-w-3xl px-6">
-        <SectionHeading eyebrow="Our Journey" title="Written by Allah" />
+        <SectionHeading eyebrow={t.story.eyebrow} title={t.story.title} />
         <div className="relative">
           <div className="absolute bottom-0 left-4 top-0 w-px bg-gradient-to-b from-transparent via-gold/50 to-transparent sm:left-1/2" />
-          {events.map((e, i) => (
+          {t.story.items.map((e, i) => (
             <motion.div
               key={e.year}
               {...fadeUp}
@@ -439,6 +552,7 @@ function Story() {
 // ─── Gallery ──────────────────────────────────────────────────────────────────
 const galleryImages = [g1, g2, g3, g4, g5, g6];
 function Gallery() {
+  const { t } = useLang();
   const [active, setActive] = useState<number | null>(null);
   const [auto, setAuto] = useState(0);
   useEffect(() => {
@@ -454,8 +568,11 @@ function Gallery() {
   return (
     <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-6">
-        <SectionHeading eyebrow="Moments" title="Our Gallery" />
-        <motion.div {...fadeUp} className="columns-2 gap-4 sm:columns-3 sm:gap-6 [&>*]:mb-4 sm:[&>*]:mb-6">
+        <SectionHeading eyebrow={t.gallery.eyebrow} title={t.gallery.title} />
+        <motion.div
+          {...fadeUp}
+          className="columns-2 gap-4 sm:columns-3 sm:gap-6 [&>*]:mb-4 sm:[&>*]:mb-6"
+        >
           {galleryImages.map((src, i) => (
             <motion.button
               key={src}
@@ -513,10 +630,11 @@ function Gallery() {
 
 // ─── Location ─────────────────────────────────────────────────────────────────
 function Location() {
+  const { t } = useLang();
   return (
     <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-5xl px-6">
-        <SectionHeading eyebrow="Find Us" title="The Venue" />
+        <SectionHeading eyebrow={t.location.eyebrow} title={t.location.title} />
         <motion.div {...fadeUp} className="glass-card overflow-hidden rounded-3xl">
           <div className="aspect-video w-full">
             <iframe
@@ -527,19 +645,45 @@ function Location() {
               referrerPolicy="no-referrer-when-downgrade"
             />
           </div>
-          <div className="grid gap-4 p-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-            <div className="min-w-0">
-              <div className="text-xl italic">{NIKAH_VENUE}</div>
-              <div className="text-sm text-muted-foreground">{NIKAH_ADDRESS}</div>
+          <div className="divide-y divide-gold/15">
+            <div className="grid gap-4 p-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-xl italic">
+                  <MoonStar className="h-4 w-4 shrink-0 text-gold-deep" />
+                  {t.events.nikahVenue}
+                </div>
+                <div className="mt-1 text-sm text-muted-foreground">
+                  {t.events.nikah} · {t.events.nikahTime}
+                </div>
+              </div>
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${MAPS_QUERY}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-gold/50 bg-luxe px-6 py-3 text-xs uppercase tracking-[0.2em] text-gold-deep transition-all hover:border-gold hover:shadow-gold"
+              >
+                <MapPin className="h-4 w-4" /> {t.location.directions}
+              </a>
             </div>
-            <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${MAPS_QUERY}`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-gold/50 bg-luxe px-6 py-3 text-xs uppercase tracking-[0.3em] text-gold-deep transition-all hover:border-gold hover:shadow-gold"
-            >
-              <MapPin className="h-4 w-4" /> Get Directions
-            </a>
+            <div className="grid gap-4 p-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-xl italic">
+                  <Home className="h-4 w-4 shrink-0 text-gold-deep" />
+                  {t.events.receptionVenue}
+                </div>
+                <div className="mt-1 text-sm text-muted-foreground">
+                  {t.events.reception} · {t.events.receptionTime} · {t.events.receptionAddress}
+                </div>
+              </div>
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${RECEPTION_MAPS_QUERY}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-gold/50 bg-luxe px-6 py-3 text-xs uppercase tracking-[0.2em] text-gold-deep transition-all hover:border-gold hover:shadow-gold"
+              >
+                <MapPin className="h-4 w-4" /> {t.location.directions}
+              </a>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -549,29 +693,22 @@ function Location() {
 
 // ─── Schedule ─────────────────────────────────────────────────────────────────
 function Schedule() {
-  const items = [
-    { time: "3:30 PM", title: "Guest Arrival" },
-    { time: "4:00 PM", title: "Nikah Ceremony" },
-    { time: "5:00 PM", title: "Group Photos" },
-    { time: "6:00 PM", title: "Lunch / Dinner" },
-    { time: "7:30 PM", title: "Reception" },
-    { time: "9:30 PM", title: "Vote of Thanks" },
-  ];
+  const { t } = useLang();
   return (
     <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-3xl px-6">
-        <SectionHeading eyebrow="Programme" title="Wedding Schedule" />
+        <SectionHeading eyebrow={t.schedule.eyebrow} title={t.schedule.title} />
         <div className="glass-card overflow-hidden rounded-3xl">
-          {items.map((it, i) => (
+          {t.schedule.items.map((it, i) => (
             <motion.div
               key={it.title}
               {...fadeUp}
               transition={{ ...fadeUp.transition, delay: i * 0.05 }}
               className={`grid grid-cols-[auto_minmax(0,1fr)] items-center gap-6 p-6 sm:p-8 ${
-                i !== items.length - 1 ? "border-b border-gold/15" : ""
+                i !== t.schedule.items.length - 1 ? "border-b border-gold/15" : ""
               }`}
             >
-              <div className="text-gold-gradient w-20 shrink-0 text-lg italic sm:w-28 sm:text-xl">
+              <div className="text-gold-gradient w-24 shrink-0 text-lg italic sm:w-32 sm:text-xl">
                 {it.time}
               </div>
               <div className="min-w-0 text-base sm:text-lg">{it.title}</div>
@@ -585,6 +722,7 @@ function Schedule() {
 
 // ─── Blessings ────────────────────────────────────────────────────────────────
 function Blessings() {
+  const { t } = useLang();
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">
       <div className="bg-arabesque absolute inset-0" />
@@ -598,14 +736,20 @@ function Blessings() {
           loading="lazy"
           className="mx-auto mb-10 h-32 w-auto opacity-90"
         />
-        <motion.p {...fadeUp} className="font-arabic text-3xl leading-loose text-gold-deep sm:text-4xl">
+        <motion.p
+          {...fadeUp}
+          className="font-arabic text-3xl leading-loose text-gold-deep sm:text-4xl"
+        >
           بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ
         </motion.p>
         <motion.p {...fadeUp} className="mt-6 text-sm italic text-muted-foreground sm:text-base">
-          "Barakallahu laka wa baraka 'alayka wa jama'a baynakuma fi khayr."
+          {t.blessings.translit}
         </motion.p>
-        <motion.p {...fadeUp} className="mt-6 text-base leading-relaxed text-foreground/75 sm:text-lg">
-          May Allah bless your marriage, shower His mercy upon you, and unite you both in goodness.
+        <motion.p
+          {...fadeUp}
+          className="mt-6 text-base leading-relaxed text-foreground/75 sm:text-lg"
+        >
+          {t.blessings.meaning}
         </motion.p>
       </div>
     </section>
@@ -614,6 +758,7 @@ function Blessings() {
 
 // ─── RSVP ─────────────────────────────────────────────────────────────────────
 function RSVP() {
+  const { t } = useLang();
   const [sent, setSent] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -636,22 +781,24 @@ function RSVP() {
     setSent(true);
   }
 
+  const fields = [
+    { key: "name", label: t.rsvp.name, type: "text", required: true },
+    { key: "guests", label: t.rsvp.guests, type: "number", required: true },
+    { key: "phone", label: t.rsvp.phone, type: "tel", required: true },
+  ];
+
   return (
     <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-2xl px-6">
-        <SectionHeading eyebrow="Kindly Reply" title="RSVP" />
+        <SectionHeading eyebrow={t.rsvp.eyebrow} title={t.rsvp.title} />
         <motion.form
           {...fadeUp}
           onSubmit={submit}
           className="glass-card space-y-5 rounded-3xl p-8 sm:p-10"
         >
-          {[
-            { key: "name", label: "Full Name", type: "text", required: true },
-            { key: "guests", label: "Number of Guests", type: "number", required: true },
-            { key: "phone", label: "Phone Number", type: "tel", required: true },
-          ].map((f) => (
+          {fields.map((f) => (
             <div key={f.key}>
-              <label className="mb-2 block text-[0.65rem] uppercase tracking-[0.3em] text-gold-deep">
+              <label className="mb-2 block text-[0.65rem] uppercase tracking-[0.2em] text-gold-deep">
                 {f.label}
               </label>
               <input
@@ -665,29 +812,29 @@ function RSVP() {
             </div>
           ))}
           <div>
-            <label className="mb-2 block text-[0.65rem] uppercase tracking-[0.3em] text-gold-deep">
-              Will you attend?
+            <label className="mb-2 block text-[0.65rem] uppercase tracking-[0.2em] text-gold-deep">
+              {t.rsvp.attendQ}
             </label>
             <div className="grid grid-cols-2 gap-3">
-              {["yes", "no"].map((v) => (
+              {(["yes", "no"] as const).map((v) => (
                 <button
                   key={v}
                   type="button"
                   onClick={() => setForm({ ...form, attending: v })}
-                  className={`rounded-xl border py-3 text-sm capitalize transition-all ${
+                  className={`rounded-xl border py-3 text-sm transition-all ${
                     form.attending === v
                       ? "border-gold bg-luxe text-gold-deep shadow-gold"
                       : "border-gold/25 bg-ivory/40 text-muted-foreground hover:border-gold/50"
                   }`}
                 >
-                  {v === "yes" ? "Joyfully Accepts" : "Regretfully Declines"}
+                  {v === "yes" ? t.rsvp.yes : t.rsvp.no}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="mb-2 block text-[0.65rem] uppercase tracking-[0.3em] text-gold-deep">
-              Special Message
+            <label className="mb-2 block text-[0.65rem] uppercase tracking-[0.2em] text-gold-deep">
+              {t.rsvp.message}
             </label>
             <textarea
               rows={3}
@@ -700,11 +847,11 @@ function RSVP() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-luxe px-8 py-4 text-xs uppercase tracking-[0.35em] text-gold-deep shadow-gold transition-all"
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-luxe px-8 py-4 text-xs uppercase tracking-[0.2em] text-gold-deep shadow-gold transition-all"
             style={{ background: "var(--gradient-gold)", color: "oklch(0.985 0.008 90)" }}
           >
             <Send className="h-4 w-4" />
-            Send via WhatsApp
+            {t.rsvp.send}
           </motion.button>
           <AnimatePresence>
             {sent && (
@@ -714,7 +861,7 @@ function RSVP() {
                 exit={{ opacity: 0 }}
                 className="rounded-xl border border-sage/40 bg-sage/10 p-4 text-center text-sm text-emerald-deep"
               >
-                JazakAllah khair — your reply is on its way. 🌿
+                {t.rsvp.sent}
               </motion.div>
             )}
           </AnimatePresence>
@@ -724,41 +871,66 @@ function RSVP() {
   );
 }
 
-// ─── Dress code + Gift ────────────────────────────────────────────────────────
-function DressAndGift() {
+// ─── Dress code + Contact ─────────────────────────────────────────────────────
+function DressAndContact() {
+  const { t } = useLang();
   return (
     <section className="relative py-24 sm:py-32">
       <div className="mx-auto grid max-w-5xl gap-6 px-6 md:grid-cols-2">
         <motion.div {...fadeUp} className="glass-card rounded-3xl p-10 text-center">
-          <div className="text-xs uppercase tracking-[0.35em] text-gold-deep">Dress Code</div>
-          <h3 className="mt-4 text-3xl italic">Traditional / Formal Attire</h3>
-          <div className="mx-auto mt-6 flex gap-3">
-            {["oklch(0.965 0.018 85)", "oklch(0.82 0.1 82)", "oklch(0.55 0.06 145)", "oklch(0.38 0.07 155)"].map(
-              (c) => (
-                <div
-                  key={c}
-                  className="h-10 w-10 rounded-full border border-gold/30"
-                  style={{ background: c }}
-                />
-              ),
-            )}
+          <div className="text-xs uppercase tracking-[0.2em] text-gold-deep">{t.dress.eyebrow}</div>
+          <h3 className="mt-4 text-3xl italic">{t.dress.title}</h3>
+          <div className="mx-auto mt-6 flex justify-center gap-3">
+            {[
+              "oklch(0.965 0.018 85)",
+              "oklch(0.82 0.1 82)",
+              "oklch(0.55 0.06 145)",
+              "oklch(0.38 0.07 155)",
+            ].map((c) => (
+              <div
+                key={c}
+                className="h-10 w-10 rounded-full border border-gold/30"
+                style={{ background: c }}
+              />
+            ))}
           </div>
-          <p className="mt-6 text-sm text-muted-foreground">
-            Cream · Champagne · Sage · Emerald
-          </p>
+          <p className="mt-6 text-sm text-muted-foreground">{t.dress.colors}</p>
         </motion.div>
 
         <motion.div {...fadeUp} className="glass-card rounded-3xl p-10 text-center">
-          <Gift className="mx-auto h-8 w-8 text-gold-deep" />
-          <h3 className="mt-4 text-3xl italic">Digital Blessing</h3>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Your duas are the greatest gift. Should you wish to add a token:
-          </p>
-          <div className="mt-6 rounded-2xl border border-gold/25 bg-ivory/50 p-4 text-left text-sm">
-            <div className="text-xs uppercase tracking-widest text-gold-deep">UPI</div>
-            <div className="mt-1 font-mono">aisha.ahmed@upi</div>
-            <div className="mt-3 text-xs uppercase tracking-widest text-gold-deep">Bank</div>
-            <div className="mt-1 font-mono">Al-Barakah Bank · 0012-3456-7890</div>
+          <div className="text-xs uppercase tracking-[0.2em] text-gold-deep">
+            {t.contact.eyebrow}
+          </div>
+          <h3 className="mt-4 text-3xl italic">{t.contact.title}</h3>
+          <p className="mt-3 text-sm text-muted-foreground">{t.contact.body}</p>
+          <div className="mt-6 rounded-2xl border border-gold/25 bg-ivory/50 p-6">
+            <div className="text-xs uppercase tracking-[0.2em] text-gold-deep">
+              {t.contact.role}
+            </div>
+            <div className="mt-2 text-2xl italic">{t.contact.name}</div>
+            <a
+              href={`tel:+${WHATSAPP_NUMBER}`}
+              className="mt-1 inline-block font-mono text-sm text-foreground/80 hover:text-gold-deep"
+            >
+              {CONTACT_PHONE_DISPLAY}
+            </a>
+            <div className="mt-5 flex justify-center gap-3">
+              <a
+                href={`tel:+${WHATSAPP_NUMBER}`}
+                className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-luxe px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-gold-deep transition-all hover:border-gold hover:shadow-gold"
+              >
+                <Phone className="h-3.5 w-3.5" /> {t.contact.call}
+              </a>
+              <a
+                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-ivory shadow-gold transition-all hover:opacity-90"
+                style={{ background: "var(--gradient-gold)" }}
+              >
+                <MessageCircleHeart className="h-3.5 w-3.5" /> {t.contact.whatsapp}
+              </a>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -768,6 +940,7 @@ function DressAndGift() {
 
 // ─── Guest book ───────────────────────────────────────────────────────────────
 function GuestBook() {
+  const { t } = useLang();
   const [wishes, setWishes] = useState<{ name: string; text: string }[]>([
     { name: "Zainab", text: "Barakallahu lakuma! May your home be filled with sakinah." },
     { name: "Yusuf", text: "So happy for you both. Duas always. ✨" },
@@ -787,21 +960,28 @@ function GuestBook() {
   return (
     <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-4xl px-6">
-        <SectionHeading eyebrow="Leave a Note" title="Guest Book" />
-        <motion.form {...fadeUp} onSubmit={add} className="glass-card mb-10 grid gap-4 rounded-3xl p-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_auto]">
+        <SectionHeading eyebrow={t.guestbook.eyebrow} title={t.guestbook.title} />
+        <motion.form
+          {...fadeUp}
+          onSubmit={add}
+          className="glass-card mb-10 grid gap-4 rounded-3xl p-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_auto]"
+        >
           <input
-            placeholder="Your name"
+            placeholder={t.guestbook.namePh}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="min-w-0 rounded-xl border border-gold/25 bg-ivory/60 px-4 py-3 text-sm outline-none focus:border-gold"
           />
           <input
-            placeholder="Your wish or dua…"
+            placeholder={t.guestbook.wishPh}
             value={text}
             onChange={(e) => setText(e.target.value)}
             className="min-w-0 rounded-xl border border-gold/25 bg-ivory/60 px-4 py-3 text-sm outline-none focus:border-gold"
           />
-          <button className="shrink-0 rounded-xl px-6 py-3 text-xs uppercase tracking-[0.3em] text-ivory shadow-gold" style={{ background: "var(--gradient-gold)" }}>
+          <button
+            className="shrink-0 rounded-xl px-6 py-3 text-xs uppercase tracking-[0.3em] text-ivory shadow-gold"
+            style={{ background: "var(--gradient-gold)" }}
+          >
             <MessageCircleHeart className="inline h-4 w-4" />
           </button>
         </motion.form>
@@ -835,23 +1015,31 @@ function GuestBook() {
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 function Footer() {
+  const { t } = useLang();
   return (
     <footer className="relative overflow-hidden bg-luxe py-20 text-center">
       <div className="bg-arabesque absolute inset-0" />
       <div className="relative mx-auto max-w-2xl px-6">
-        <div className="text-xs uppercase tracking-[0.4em] text-gold-deep">With Love & Duas</div>
+        <div className="text-xs uppercase tracking-[0.25em] text-gold-deep">{t.footer.tag}</div>
         <h3 className="mt-4 text-4xl italic sm:text-5xl">
-          <span className="text-gold-gradient">{BRIDE}</span>
+          <span className="text-gold-gradient">{t.names.bride}</span>
           <span className="mx-3 text-gold">&</span>
-          <span className="text-gold-gradient">{GROOM}</span>
+          <span className="text-gold-gradient">{t.names.groom}</span>
         </h3>
         <p className="mt-6 text-sm leading-relaxed text-foreground/70">
-          Thank you for celebrating this beautiful journey with us.
+          {t.footer.thanks1}
           <br />
-          We look forward to celebrating our special day with you.
+          {t.footer.thanks2}
         </p>
+        <div className="mt-6 text-sm text-foreground/70">
+          <span className="text-gold-deep">{t.contact.role}: </span>
+          {t.contact.name} ·{" "}
+          <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:text-gold-deep">
+            {CONTACT_PHONE_DISPLAY}
+          </a>
+        </div>
         <div className="mt-8 text-xs tracking-widest text-muted-foreground">
-          © {new Date().getFullYear()} — Made with love, InshaAllah
+          © {new Date().getFullYear()} — {t.footer.made}
         </div>
       </div>
     </footer>
@@ -859,31 +1047,16 @@ function Footer() {
 }
 
 // ─── Floating action toolbar ─────────────────────────────────────────────────
-function Toolbar() {
-  const [muted, setMuted] = useState(true);
+function Toolbar({ muted, onToggleMute }: { muted: boolean; onToggleMute: () => void }) {
   const [dark, setDark] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    if (!audioRef.current) {
-      const a = new Audio(
-        "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8e2b06e1a.mp3?filename=oud-instrumental-ambient-loop.mp3",
-      );
-      a.loop = true;
-      a.volume = 0.35;
-      audioRef.current = a;
-    }
-    if (muted) audioRef.current.pause();
-    else audioRef.current.play().catch(() => {});
-  }, [muted]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
 
   function downloadICS() {
-    const dt = "20260815T163000";
-    const end = "20260815T220000";
+    const dt = "20270215T100000";
+    const end = "20270215T160000";
     const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:${Date.now()}@wedding\nDTSTAMP:${dt}Z\nDTSTART:${dt}\nDTEND:${end}\nSUMMARY:${BRIDE} & ${GROOM} — Nikah\nLOCATION:${NIKAH_VENUE}, ${NIKAH_ADDRESS}\nDESCRIPTION:Join us for the blessed Nikah and Reception.\nEND:VEVENT\nEND:VCALENDAR`;
     const blob = new Blob([ics], { type: "text/calendar" });
     const url = URL.createObjectURL(blob);
@@ -909,7 +1082,7 @@ function Toolbar() {
 
   return (
     <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-gold/30 bg-ivory/60 p-2 shadow-glass backdrop-blur-xl">
-      <button onClick={() => setMuted((m) => !m)} className={btn} aria-label="Toggle music">
+      <button onClick={onToggleMute} className={btn} aria-label="Toggle music">
         {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
       </button>
       <button onClick={downloadICS} className={btn} aria-label="Add to calendar">
@@ -932,51 +1105,88 @@ function Toolbar() {
 function InvitationPage() {
   const [loading, setLoading] = useState(true);
   const [opened, setOpened] = useState(false);
+  const [muted, setMuted] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+    };
+  }, []);
+
+  function ensureAudio() {
+    if (!audioRef.current) {
+      const a = new Audio(weddingSong);
+      a.loop = true;
+      a.volume = 0.4;
+      audioRef.current = a;
+    }
+    return audioRef.current;
+  }
+
   function openInvitation() {
     setOpened(true);
+    // Starting playback inside the click handler satisfies browser autoplay rules.
+    ensureAudio()
+      .play()
+      .then(() => setMuted(false))
+      .catch(() => {});
     setTimeout(() => {
       contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 400);
   }
 
+  function toggleMute() {
+    const a = ensureAudio();
+    if (muted) {
+      a.play().catch(() => {});
+      setMuted(false);
+    } else {
+      a.pause();
+      setMuted(true);
+    }
+  }
+
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-luxe text-foreground">
-      <AnimatePresence>{loading && <LoadingScreen />}</AnimatePresence>
-      <Petals />
+    <LanguageProvider>
+      <div className="relative min-h-screen overflow-x-hidden bg-luxe text-foreground">
+        <AnimatePresence>{loading && <LoadingScreen />}</AnimatePresence>
+        <Petals />
+        <LanguageToggle />
 
-      <Hero onOpen={openInvitation} />
+        <Hero onOpen={openInvitation} />
 
-      <AnimatePresence>
-        {opened && (
-          <motion.div
-            ref={contentRef}
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <EventCards />
-            <Countdown />
-            <Story />
-            <Gallery />
-            <Schedule />
-            <Location />
-            <RSVP />
-            <Blessings />
-            <DressAndGift />
-            <GuestBook />
-            <Footer />
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence>
+          {opened && (
+            <motion.div
+              ref={contentRef}
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <EventCards />
+              <Countdown />
+              <Story />
+              <Gallery />
+              <Schedule />
+              <Location />
+              <RSVP />
+              <Blessings />
+              <DressAndContact />
+              <GuestBook />
+              <Footer />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {opened && <Toolbar />}
-    </div>
+        {opened && <Toolbar muted={muted} onToggleMute={toggleMute} />}
+      </div>
+    </LanguageProvider>
   );
 }
